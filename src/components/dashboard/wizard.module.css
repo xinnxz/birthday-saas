@@ -155,7 +155,60 @@
   padding-left: 2px;
 }
 
-/* ===== Dynamic Photo Upload ===== */
+/* ===== Music Grid ===== */
+.musicGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.musicCard {
+  border: 1px solid var(--neutral-200);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.musicCard:hover {
+  border-color: var(--brand-secondary);
+  background: var(--neutral-50);
+}
+
+.musicCard.active {
+  border-color: var(--brand-primary);
+  background: rgba(212, 165, 165, 0.1);
+  box-shadow: 0 4px 12px rgba(74, 37, 48, 0.08);
+}
+
+.musicCardIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.musicCardInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.musicCardInfo h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--neutral-800);
+  font-weight: 600;
+}
+
+.musicCardInfo p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--neutral-500);
+}
 .uploadArea {
   width: 100%;
   padding: 40px 20px;

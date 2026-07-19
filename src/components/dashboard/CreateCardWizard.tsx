@@ -36,9 +36,17 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
   const [previews, setPreviews] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Music upload
+  // Music upload & preset
   const [musicFile, setMusicFile] = useState<File | null>(null);
+  const [presetMusic, setPresetMusic] = useState<number>(0);
   const musicInputRef = useRef<HTMLInputElement | null>(null);
+
+  const PRESET_SONGS = [
+    { id: 0, title: "Beautiful in White", artist: "Westlife", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
+    { id: 1, title: "Perfect", artist: "Ed Sheeran", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
+    { id: 2, title: "A Thousand Years", artist: "Christina Perri", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
+    { id: 3, title: "Unggah Lagu Sendiri...", artist: "Format MP3/WAV", url: "custom" }
+  ];
 
   // Messages & Letter
   const [msg1, setMsg1] = useState("You are my today and all of my tomorrows.");
@@ -172,11 +180,15 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
           title: "Lagu Pilihan Anda",
           artist: senderName.trim() || "Seseorang",
           url: customMusicUrl
+        } : (presetMusic !== 3 ? {
+          title: PRESET_SONGS[presetMusic].title,
+          artist: PRESET_SONGS[presetMusic].artist,
+          url: PRESET_SONGS[presetMusic].url
         } : { 
           title: "Beautiful in White", 
           artist: "Westlife", 
           url: "" 
-        },
+        }),
         theme: "romantic",
         isPublished: true,
         views: 0,
@@ -365,37 +377,56 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
         </div>
       )}
 
-      {/* ====== STEP 3: Upload Lagu (Opsional) ====== */}
+      {/* ====== STEP 3: Pilih Lagu ====== */}
       {step === 3 && (
         <div className={styles.card}>
           <div className={styles.cardIcon}>
             <Music size={32} strokeWidth={1.5} />
           </div>
-          <h2 className={styles.cardTitle}>Lagu Spesial (Opsional)</h2>
+          <h2 className={styles.cardTitle}>Latar Musik Romantis</h2>
           <p className={styles.cardDesc}>
-            Unggah lagu kenangan Anda (MP3) untuk menjadi latar belakang kartu ini. Kosongkan jika ingin menggunakan lagu bawaan romantis.
+            Pilih lagu yang akan diputar otomatis saat kado dibuka. Tidak perlu repot *download*!
           </p>
 
-          <div className={styles.uploadArea} onClick={() => musicInputRef.current?.click()} style={musicFile ? { borderColor: 'var(--success)' } : {}}>
-            <div className={styles.uploadIcon}>
-              <PlayCircle size={32} strokeWidth={1.5} color={musicFile ? 'var(--success)' : 'inherit'} />
-            </div>
-            {musicFile ? (
-              <p style={{ color: 'var(--success)' }}>{musicFile.name}</p>
-            ) : (
-              <p>Klik untuk memilih file audio / MP3</p>
-            )}
-            
-            <input
-              ref={musicInputRef}
-              type="file"
-              accept="audio/*"
-              onChange={handleMusicSelect}
-              style={{ display: 'none' }}
-            />
+          <div className={styles.musicGrid}>
+            {PRESET_SONGS.map((song) => (
+              <div 
+                key={song.id} 
+                className={`${styles.musicCard} ${presetMusic === song.id ? styles.active : ''}`}
+                onClick={() => setPresetMusic(song.id)}
+              >
+                <div className={styles.musicCardIcon}>
+                  <PlayCircle size={24} color={presetMusic === song.id ? 'var(--brand-primary)' : 'var(--neutral-400)'} />
+                </div>
+                <div className={styles.musicCardInfo}>
+                  <h4>{song.title}</h4>
+                  <p>{song.artist}</p>
+                </div>
+              </div>
+            ))}
           </div>
 
-          {musicFile && (
+          {presetMusic === 3 && (
+            <div className={styles.uploadArea} onClick={() => musicInputRef.current?.click()} style={{ ...(musicFile ? { borderColor: 'var(--success)' } : {}), marginTop: '16px' }}>
+              <div className={styles.uploadIcon}>
+                <UploadCloud size={32} strokeWidth={1.5} color={musicFile ? 'var(--success)' : 'inherit'} />
+              </div>
+              {musicFile ? (
+                <p style={{ color: 'var(--success)' }}>{musicFile.name}</p>
+              ) : (
+                <p>Klik untuk memilih file audio / MP3 dari perangkat Anda</p>
+              )}
+              <input
+                ref={musicInputRef}
+                type="file"
+                accept="audio/*"
+                onChange={handleMusicSelect}
+                style={{ display: 'none' }}
+              />
+            </div>
+          )}
+
+          {presetMusic === 3 && musicFile && (
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
               <button onClick={removeMusic} className={styles.btnSecondary} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
                 <X size={14} style={{ marginRight: '4px' }} /> Hapus Lagu
