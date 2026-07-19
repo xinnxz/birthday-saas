@@ -1,0 +1,170 @@
+"use client";
+
+/**
+ * Dashboard — Halaman "Kartu Saya"
+ * 
+ * Menampilkan daftar semua kartu ulang tahun yang dibuat oleh user.
+ * Setiap kartu ditampilkan sebagai card dengan:
+ * - Preview nama penerima (font script)
+ * - Status (Published / Draft)
+ * - Jumlah views
+ * - Tombol aksi (Edit, Lihat, Hapus)
+ * 
+ * Jika belum ada kartu, tampilkan empty state dengan CTA.
+ */
+
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
+import { getCardsByOwner, deleteCard } from "@/lib/db";
+import { BirthdayCard } from "@/types";
+import styles from "@/components/dashboard/dashboard.module.css";
+
+export default function DashboardPage() {
+  const { user } = useAuth();
+  const [cards, setCards] = useState<BirthdayCard[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Ambil semua kartu milik user saat halaman dimuat
+  useEffect(() => {
+    async function fetchCards() {
+      if (!user) return;
+      try {
+        const userCards = await getCardsByOwner(user.uid);
+        setCards(userCards);
+      } catch (error) {
+        console.error("Gagal memuat kartu:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchCards();
+  }, [user]);
+
+  // Handler hapus kartu dengan konfirmasi
+  const handleDelete = async (cardId: string, recipientName: string) => {
+    const confirmed = window.confirm(
+      `Yakin ingin menghapus kartu untuk "${recipientName}"? Aksi ini tidak bisa dibatalkan.`
+    );
+    if (!confirmed) return;
+
+    try {
+      await deleteCard(cardId);
+      setCards((prev) => prev.filter((c) => c.id !== cardId));
+    } catch (error) {
+      console.error("Gagal menghapus kartu:", error);
+      alert("Gagal menghapus kartu. Silakan coba lagi.");
+    }
+  };
+
+  return (
+    <div>
+      {/* Header */}
+      <div className={styles.pageHeader}>
+        <div>
+          <h1 className={styles.pageTitle}>Kartu Saya</h1>
+          <p className={styles.pageSubtitle}>
+            Kelola semua kartu ulang tahun digital Anda
+          </p>
+        </div>
+        <Link href="/dashboard/create" className={styles.createBtn}>
+          <span>✨</span>
+          Buat Kartu Baru
+        </Link>
+      </div>
+
+      {/* Loading State */}
+      {loading && (
+        <div className={styles.cardsGrid}>
+          {[1, 2, 3].map((i) => (
+            <div key={i} className={styles.cardItem}>
+              <div className={`${styles.cardPreview} skeleton`} />
+              <div className={styles.cardBody}>
+                <div className="skeleton" style={{ height: 20, width: "60%", marginBottom: 8 }} />
+                <div className="skeleton" style={{ height: 14, width: "40%" }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Empty State */}
+      {!loading && cards.length === 0 && (
+        <div className={styles.emptyState}>
+          <div className={styles.emptyIcon}>🎂</div>
+          <h2 className={styles.emptyTitle}>Belum ada kartu</h2>
+          <p className={styles.emptyDesc}>
+            Buat kartu ulang tahun digital pertama Anda dan kirimkan ke orang tersayang!
+          </p>
+          <Link href="/dashboard/create" className={styles.createBtn}>
+            <span>✨</span>
+            Buat Kartu Pertama
+          </Link>
+        </div>
+      )}
+
+      {/* Cards Grid */}
+      {!loading && cards.length > 0 && (
+        <div className={styles.cardsGrid}>
+          {cards.map((card) => (
+            <div key={card.id} className={styles.cardItem}>
+              {/* Preview area */}
+              <div className={styles.cardPreview}>
+                <span className={styles.cardPreviewName}>
+                  {card.recipientName}
+                </span>
+              </div>
+
+              {/* Card body */}
+              <div className={styles.cardBody}>
+                <h3 className={styles.cardTitle}>
+                  Untuk {card.recipientName}
+                </h3>
+                <div className={styles.cardMeta}>
+                  <span
+                    className={`${styles.cardStatus} ${
+                      card.isPublished
+                        ? styles.statusPublished
+                        : styles.statusDraft
+                    }`}
+                  >
+                    {card.isPublished ? "✅ Published" : "📝 Draft"}
+                  </span>
+                  <span className={styles.cardMetaItem}>
+                    👁️ {card.views || 0} views
+                  </span>
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className={styles.cardActions}>
+                <Link
+                  href={`/dashboard/${card.id}/edit`}
+                  className={styles.actionBtn}
+                >
+                  ✏️ Edit
+                </Link>
+                {card.isPublished && (
+                  <a
+                    href={`/card/${card.slug}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.actionBtn}
+                  >
+                    🔗 Lihat
+                  </a>
+                )}
+                <button
+                  onClick={() => handleDelete(card.id!, card.recipientName)}
+                  className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
+                >
+                  🗑️
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
