@@ -1,0 +1,288 @@
+"use client";
+
+import { useState, useRef } from 'react';
+import { useRouter } from 'next/navigation';
+import { uploadToCloudinary } from '@/lib/cloudinary/upload';
+import { db } from '@/lib/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import styles from './wizard.module.css';
+
+/**
+ * CreateCardWizard — Form pembuatan kartu ulang tahun.
+ * 
+ * User hanya perlu mengisi 3 hal:
+ * 1. Nama penerima (siapa yang ulang tahun)
+ * 2. Tanggal lahir (untuk PIN & countdown)
+ * 3. 6 Foto polaroid (upload ke Cloudinary)
+ * 
+ * Sisanya (bouquet, journey, music, letter, dll) menggunakan 
+ * template bawaan dari website asli web-ultah.
+ */
+export default function CreateCardWizard({ userId }: { userId: string }) {
+  const router = useRouter();
+  const [step, setStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
+  const [error, setError] = useState('');
+
+  // Form data — hanya 2 field teks
+  const [recipientName, setRecipientName] = useState('');
+  const [birthDate, setBirthDate] = useState('');
+
+  // Dynamic slots foto
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const totalSteps = 2;
+
+  // Handle multiple photo selection
+  const handleMultiplePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const newFiles = Array.from(e.target.files);
+      setPhotos((prev) => [...prev, ...newFiles]);
+
+      // Create previews
+      newFiles.forEach((file) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          setPreviews((prev) => [...prev, reader.result as string]);
+        };
+        reader.readAsDataURL(file);
+      });
+      
+      // Reset input value so the same files can be selected again if needed
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos((prev) => prev.filter((_, i) => i !== index));
+    setPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Generate PIN dari tanggal lahir (DDMMYYYY)
+  const generatePin = (dateStr: string): string => {
+    if (!dateStr) return '01012000';
+    const d = new Date(dateStr);
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = String(d.getFullYear());
+    return `${dd}${mm}${yyyy}`;
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    setError('');
+    setUploadProgress(0);
+
+    try {
+      // Upload photos ke Cloudinary
+      const photoUrls: { url: string; caption: string }[] = [];
+      const validPhotos = photos; // Semua sudah File
+      
+      for (let i = 0; i < validPhotos.length; i++) {
+        setUploadProgress(Math.round(((i) / validPhotos.length) * 100));
+        const url = await uploadToCloudinary(validPhotos[i], 'image');
+        photoUrls.push({ url, caption: '' });
+      }
+      setUploadProgress(100);
+
+      // Generate slug & PIN
+      const slug = recipientName.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Math.floor(Math.random() * 10000);
+      const pin = generatePin(birthDate);
+
+      // Format tanggal untuk display
+      const birthDateObj = new Date(birthDate);
+      const displayDate = birthDateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+
+      // Simpan ke Firestore dengan template bawaan web-ultah
+      await addDoc(collection(db, 'cards'), {
+        ownerId: userId,
+        slug,
+        recipientName,
+        senderName: 'Someone Special',
+        birthDate,
+        pin,
+
+        // Template bawaan dari web-ultah original
+        typewriterMessages: [
+          "You are my today and all of my tomorrows.",
+          "Happy Birthday to the most beautiful soul.",
+          "Thank you for being born."
+        ],
+        letterContent: `<p>My Dearest,</p><p>On this beautiful day, I just want to remind you of how incredibly special you are. Every moment with you feels like a cinematic masterpiece, painted with the most beautiful colors.</p><p>Thank you for your endless patience, your infectious laughter, and your gentle heart. You bring so much light into my world.</p><p>May this new chapter of your life be filled with nothing but joy, success, and all the love you deserve.</p>`,
+
+        bouquet: [
+          { emoji: "🌻", name: "Sunflower", message: "Seperti bunga matahari, kamu selalu mencari cahaya dan memberikan kehangatan bagi semua orang di sekitarmu." },
+          { emoji: "🌹", name: "Rose", message: "Kehadiranmu selalu membawa cinta dan keindahan, klasik namun tak pernah membosankan." },
+          { emoji: "🌸", name: "Sakura", message: "Mengingatkanku bahwa setiap momen bersamamu itu berharga dan harus dinikmati sepenuhnya." },
+          { emoji: "🌷", name: "Tulip", message: "Kesederhanaanmu adalah pesonamu yang paling elegan." },
+          { emoji: "🌼", name: "Daisy", message: "Kecerianmu selalu berhasil membuat hari-hariku yang mendung menjadi cerah kembali." },
+        ],
+
+        journey: [
+          { date: "Awal Mula", title: "Pertama Kali Bertemu", desc: "Hari di mana dunia terasa berputar sedikit lebih lambat, dan segalanya terasa berbeda dari sebelumnya.", icon: "✨" },
+          { date: "Momen Magis", title: "Obrolan Pertama Kita", desc: "Kata-kata pertama yang terucap, tawa pertama yang terbagi—awal dari ribuan cerita yang akan kita tulis bersama.", icon: "💬" },
+          { date: "Memori Indah", title: "Kencan Pertama", desc: "Sebuah petualangan kecil yang terasa seperti liburan ke tempat terbaik di bumi, hanya karena kamu ada di sana.", icon: "🌿" },
+          { date: "Hari Ini", title: "Ulang Tahunmu", desc: "Merayakan keberadaanmu di dunia ini. Hadiah terindah yang pernah diberikan kehidupan kepadaku.", icon: "🎂" }
+        ],
+
+        photos: photoUrls,
+        music: { title: "Beautiful in White", artist: "Westlife", url: "" },
+        theme: "romantic",
+        isPublished: true,
+        views: 0,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      });
+
+      router.push('/dashboard');
+
+    } catch (err: any) {
+      console.error(err);
+      setError(err.message || 'Terjadi kesalahan. Silakan coba lagi.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const canProceed = recipientName.trim() !== '' && birthDate !== '';
+  const hasPhotos = photos.length > 0;
+
+  return (
+    <div className={styles.wizard}>
+      {/* Step indicator */}
+      <div className={styles.steps}>
+        <div className={`${styles.stepDot} ${step >= 1 ? styles.active : ''}`}>
+          <span>1</span>
+        </div>
+        <div className={`${styles.stepLine} ${step > 1 ? styles.done : ''}`} />
+        <div className={`${styles.stepDot} ${step >= 2 ? styles.active : ''}`}>
+          <span>2</span>
+        </div>
+      </div>
+
+      {/* Error display */}
+      {error && (
+        <div className={styles.errorBox}>
+          <span>⚠️</span> {error}
+        </div>
+      )}
+
+      {/* ====== STEP 1: Nama & Tanggal Lahir ====== */}
+      {step === 1 && (
+        <div className={styles.card}>
+          <div className={styles.cardIcon}>🎂</div>
+          <h2 className={styles.cardTitle}>Siapa yang Ulang Tahun?</h2>
+          <p className={styles.cardDesc}>
+            Masukkan nama dan tanggal lahir orang yang spesial.
+          </p>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Nama Penerima</label>
+            <input
+              type="text"
+              value={recipientName}
+              onChange={e => setRecipientName(e.target.value)}
+              placeholder="Contoh: Fiara"
+              className={styles.input}
+              autoFocus
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Tanggal Lahir</label>
+            <input
+              type="date"
+              value={birthDate}
+              onChange={e => setBirthDate(e.target.value)}
+              className={styles.input}
+            />
+            <span className={styles.hint}>Digunakan sebagai PIN akses kartu (format DDMMYYYY)</span>
+          </div>
+
+          <div className={styles.actions}>
+            <div />
+            <button
+              className={styles.btnPrimary}
+              onClick={() => setStep(2)}
+              disabled={!canProceed}
+            >
+              Lanjut — Pilih Foto →
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ====== STEP 2: Upload Foto (Bebas Jumlah) ====== */}
+      {step === 2 && (
+        <div className={styles.card}>
+          <div className={styles.cardIcon}>📸</div>
+          <h2 className={styles.cardTitle}>Pilih Foto Kenangan</h2>
+          <p className={styles.cardDesc}>
+            Bebas! Pilih berapapun foto yang Anda inginkan sekaligus. Foto-foto ini akan tampil sebagai galeri polaroid di kartu.
+          </p>
+
+          <div className={styles.uploadArea} onClick={() => fileInputRef.current?.click()}>
+            <div className={styles.uploadIcon}>📥</div>
+            <p>Klik di sini untuk memilih banyak foto sekaligus</p>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleMultiplePhotoSelect}
+              style={{ display: 'none' }}
+            />
+          </div>
+
+          {photos.length > 0 && (
+            <div className={styles.dynamicPhotoGrid}>
+              {previews.map((preview, index) => (
+                <div key={index} className={styles.dynamicPhotoSlot}>
+                  <img src={preview} alt={`Foto ${index + 1}`} className={styles.photoPreview} />
+                  <button
+                    className={styles.removeBtn}
+                    onClick={(e) => { e.stopPropagation(); removePhoto(index); }}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Progress bar saat upload */}
+          {loading && (
+            <div className={styles.progressWrap}>
+              <div className={styles.progressBar}>
+                <div className={styles.progressFill} style={{ width: `${uploadProgress}%` }} />
+              </div>
+              <span className={styles.progressText}>Mengunggah foto... {uploadProgress}%</span>
+            </div>
+          )}
+
+          <div className={styles.actions}>
+            <button
+              className={styles.btnSecondary}
+              onClick={() => setStep(1)}
+              disabled={loading}
+            >
+              ← Kembali
+            </button>
+            <button
+              className={styles.btnPrimary}
+              onClick={handleSubmit}
+              disabled={loading || !hasPhotos}
+            >
+              {loading ? 'Sedang Membuat...' : '✨ Buat Kartu Sekarang!'}
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

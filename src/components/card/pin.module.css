@@ -8,6 +8,17 @@
   color: var(--champagne-gold);
   z-index: 9999;
 }
+.pinCardFlower {
+  position: absolute;
+  top: -15px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #181922;
+  border-radius: 50%;
+  padding: 5px;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+  border: 1px solid rgba(232, 208, 165, 0.15);
+}
 .pinCard {
   text-align: center;
   padding: 40px 30px;

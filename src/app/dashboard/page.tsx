@@ -16,24 +16,48 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
-import { getCardsByOwner, deleteCard } from "@/lib/db";
+import { deleteCard } from "@/lib/db";
 import { BirthdayCard } from "@/types";
+import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
+import { db } from "@/lib/firebase";
 import styles from "@/components/dashboard/dashboard.module.css";
 
 export default function DashboardPage() {
   const { user } = useAuth();
   const [cards, setCards] = useState<BirthdayCard[]>([]);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState("");
 
   // Ambil semua kartu milik user saat halaman dimuat
   useEffect(() => {
     async function fetchCards() {
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
       try {
-        const userCards = await getCardsByOwner(user.uid);
-        setCards(userCards);
-      } catch (error) {
+        // Query sederhana tanpa orderBy untuk menghindari kebutuhan composite index
+        const q = query(
+          collection(db, "cards"),
+          where("ownerId", "==", user.uid)
+        );
+        const snapshot = await getDocs(q);
+        const results = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as BirthdayCard[];
+
+        // Sort di client-side agar tidak perlu composite index
+        results.sort((a, b) => {
+          const dateA = a.createdAt?.toMillis?.() || 0;
+          const dateB = b.createdAt?.toMillis?.() || 0;
+          return dateB - dateA;
+        });
+
+        setCards(results);
+      } catch (error: any) {
         console.error("Gagal memuat kartu:", error);
+        setFetchError(error.message || "Gagal memuat data kartu");
       } finally {
         setLoading(false);
       }
@@ -73,6 +97,26 @@ export default function DashboardPage() {
         </Link>
       </div>
 
+      {/* Error State */}
+      {fetchError && (
+        <div style={{
+          padding: '1rem 1.5rem',
+          background: 'rgba(239, 68, 68, 0.1)',
+          border: '1px solid rgba(239, 68, 68, 0.3)',
+          borderRadius: '12px',
+          color: '#dc2626',
+          marginBottom: '1.5rem',
+          fontSize: '0.9rem'
+        }}>
+          ⚠️ <strong>Error:</strong> {fetchError}
+          <br />
+          <small style={{ color: '#999' }}>
+            Pastikan Firestore Rules Anda sudah mengizinkan read/write. 
+            Buka Firebase Console → Firestore → Rules → ubah menjadi allow read, write: if true;
+          </small>
+        </div>
+      )}
+
       {/* Loading State */}
       {loading && (
         <div className={styles.cardsGrid}>
@@ -89,7 +133,7 @@ export default function DashboardPage() {
       )}
 
       {/* Empty State */}
-      {!loading && cards.length === 0 && (
+      {!loading && cards.length === 0 && !fetchError && (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>🎂</div>
           <h2 className={styles.emptyTitle}>Belum ada kartu</h2>

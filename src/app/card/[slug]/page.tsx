@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getCardBySlug, incrementCardViews } from "@/lib/db";
-import CardClient from "./CardClient";
+import CardOriginal from "./CardOriginal";
 import styles from "./card.module.css";
 
 /**
@@ -9,7 +9,7 @@ import styles from "./card.module.css";
  * Ini adalah Server Component yang:
  * 1. Mengambil data kartu dari Firestore berdasarkan slug di URL
  * 2. Menambah view count
- * 3. Me-render CardClient (client component) dengan data tersebut
+ * 3. Me-render CardOriginal (client component) dengan data tersebut
  * 
  * Jika slug tidak ditemukan, tampilkan halaman 404.
  */
@@ -33,7 +33,7 @@ export default async function CardPage({ params }: PageProps) {
 
   return (
     <div className={styles.cardContainer}>
-      <CardClient card={card} />
+      <CardOriginal card={card} />
     </div>
   );
 }
