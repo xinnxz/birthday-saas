@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { uploadToCloudinary } from '@/lib/cloudinary/upload';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { AlertCircle, Cake, Camera, UploadCloud, X, Sparkles, ArrowRight, ArrowLeft, Music, PlayCircle } from 'lucide-react';
+import { AlertCircle, Cake, Camera, UploadCloud, X, Sparkles, ArrowRight, ArrowLeft, Music, PlayCircle, MessageSquareHeart } from 'lucide-react';
 import styles from './wizard.module.css';
 
 /**
@@ -40,7 +40,13 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
   const [musicFile, setMusicFile] = useState<File | null>(null);
   const musicInputRef = useRef<HTMLInputElement | null>(null);
 
-  const totalSteps = 3;
+  // Messages & Letter
+  const [msg1, setMsg1] = useState("You are my today and all of my tomorrows.");
+  const [msg2, setMsg2] = useState("Happy Birthday to the most beautiful soul.");
+  const [msg3, setMsg3] = useState("Thank you for being born.");
+  const [letter, setLetter] = useState("My Dearest,\n\nOn this beautiful day, I just want to remind you of how incredibly special you are. Every moment with you feels like a cinematic masterpiece, painted with the most beautiful colors.\n\nThank you for your endless patience, your infectious laughter, and your gentle heart. You bring so much light into my world.\n\nMay this new chapter of your life be filled with nothing but joy, success, and all the love you deserve.");
+
+  const totalSteps = 4;
 
   // Handle multiple photo selection
   const handleMultiplePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,13 +142,15 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
         birthDate: isoDate,
         pin,
 
-        // Template bawaan dari web-ultah original
+        // Custom Typewriter Messages
         typewriterMessages: [
-          "You are my today and all of my tomorrows.",
-          "Happy Birthday to the most beautiful soul.",
-          "Thank you for being born."
+          msg1.trim() || "You are my today and all of my tomorrows.",
+          msg2.trim() || "Happy Birthday to the most beautiful soul.",
+          msg3.trim() || "Thank you for being born."
         ],
-        letterContent: `<p>My Dearest,</p><p>On this beautiful day, I just want to remind you of how incredibly special you are. Every moment with you feels like a cinematic masterpiece, painted with the most beautiful colors.</p><p>Thank you for your endless patience, your infectious laughter, and your gentle heart. You bring so much light into my world.</p><p>May this new chapter of your life be filled with nothing but joy, success, and all the love you deserve.</p>`,
+        
+        // Custom Letter (convert newlines to <p> tags)
+        letterContent: letter.split('\n\n').map(p => `<p>${p}</p>`).join(''),
 
         bouquet: [
           { emoji: "🌻", name: "Sunflower", message: "Seperti bunga matahari, kamu selalu mencari cahaya dan memberikan kehangatan bagi semua orang di sekitarmu." },
@@ -203,6 +211,10 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
         <div className={`${styles.stepLine} ${step > 2 ? styles.done : ''}`} />
         <div className={`${styles.stepDot} ${step >= 3 ? styles.active : ''}`}>
           <span>3</span>
+        </div>
+        <div className={`${styles.stepLine} ${step > 3 ? styles.done : ''}`} />
+        <div className={`${styles.stepDot} ${step >= 4 ? styles.active : ''}`}>
+          <span>4</span>
         </div>
       </div>
 
@@ -405,6 +417,82 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
             <button
               className={styles.btnSecondary}
               onClick={() => setStep(2)}
+              disabled={loading}
+            >
+              <ArrowLeft size={16} /> Kembali
+            </button>
+            <button
+              className={styles.btnPrimary}
+              onClick={() => setStep(4)}
+              disabled={loading}
+            >
+              Lanjut — Pesan Cinta <ArrowRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ====== STEP 4: Pesan & Surat ====== */}
+      {step === 4 && (
+        <div className={styles.card}>
+          <div className={styles.cardIcon}>
+            <MessageSquareHeart size={32} strokeWidth={1.5} />
+          </div>
+          <h2 className={styles.cardTitle}>Pesan Cinta</h2>
+          <p className={styles.cardDesc}>
+            Anda bisa membiarkan pesan romantis bawaan ini, atau mengubahnya sesuai isi hati Anda sendiri. Biar nggak ribet!
+          </p>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Pesan Singkat (Animasi Ketik)</label>
+            <input
+              type="text"
+              value={msg1}
+              onChange={e => setMsg1(e.target.value)}
+              className={styles.input}
+              style={{ marginBottom: '8px' }}
+            />
+            <input
+              type="text"
+              value={msg2}
+              onChange={e => setMsg2(e.target.value)}
+              className={styles.input}
+              style={{ marginBottom: '8px' }}
+            />
+            <input
+              type="text"
+              value={msg3}
+              onChange={e => setMsg3(e.target.value)}
+              className={styles.input}
+            />
+            <span className={styles.hint}>Pesan ini akan muncul bergantian saat kartu pertama kali terbuka.</span>
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Surat Utama</label>
+            <textarea
+              value={letter}
+              onChange={e => setLetter(e.target.value)}
+              className={styles.textarea}
+              rows={6}
+            />
+            <span className={styles.hint}>Surat panjang yang bisa dibaca di dalam amplop kartu.</span>
+          </div>
+
+          {/* Progress bar saat upload */}
+          {loading && (
+            <div className={styles.progressWrap}>
+              <div className={styles.progressBar}>
+                <div className={styles.progressFill} style={{ width: `${uploadProgress}%` }} />
+              </div>
+              <span className={styles.progressText}>Menyelesaikan pembuatan kartu... {uploadProgress}%</span>
+            </div>
+          )}
+
+          <div className={styles.actions}>
+            <button
+              className={styles.btnSecondary}
+              onClick={() => setStep(3)}
               disabled={loading}
             >
               <ArrowLeft size={16} /> Kembali
