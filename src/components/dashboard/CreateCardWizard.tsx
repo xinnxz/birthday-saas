@@ -228,6 +228,21 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
     if (musicInputRef.current) musicInputRef.current.value = "";
   };
 
+  const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value.replace(/\D/g, ''); // Hanya simpan angka
+    if (val.length > 8) val = val.slice(0, 8); // Maksimal 8 digit (DDMMYYYY)
+    
+    // Format menjadi DD/MM/YYYY
+    let formatted = val;
+    if (val.length > 4) {
+      formatted = `${val.slice(0, 2)}/${val.slice(2, 4)}/${val.slice(4)}`;
+    } else if (val.length > 2) {
+      formatted = `${val.slice(0, 2)}/${val.slice(2)}`;
+    }
+    
+    setBirthDate(formatted);
+  };
+
   const generatePin = (dateStr: string): string => {
     const [dd, mm, yyyy] = dateStr.split("/");
     const yy = yyyy.slice(2);
@@ -441,7 +456,7 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
               type="text"
               placeholder="DD/MM/YYYY (Contoh: 14/02/2000)"
               value={birthDate}
-              onChange={e => setBirthDate(e.target.value)}
+              onChange={handleDateChange}
               className={styles.input}
             />
             <span className={styles.hint}>Penerima harus memasukkan PIN ini untuk membuka kado.</span>
