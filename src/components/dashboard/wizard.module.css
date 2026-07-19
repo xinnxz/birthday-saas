@@ -9,12 +9,17 @@
 }
 
 /* ===== Step Indicator ===== */
-.steps {
+.progressHeader {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0;
   margin-bottom: 40px;
+}
+
+.stepIndicatorWrapper {
+  display: flex;
+  align-items: center;
 }
 
 .stepDot {

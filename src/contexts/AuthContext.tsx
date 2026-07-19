@@ -30,21 +30,23 @@ import { UserProfile } from "@/types";
 interface AuthContextType {
   user: User | null;
   userProfile: UserProfile | null;
+  isAdmin: boolean;
   loading: boolean;
   loginWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
-// Daftar email yang mendapatkan akses Premium tanpa batas. 
-// Anda bisa menambahkan email Anda atau email pelanggan di sini.
-const PREMIUM_EMAILS = [
+// Daftar email super admin yang bisa mengubah status user lain. 
+const SUPER_ADMIN_EMAILS = [
   "admin@gmail.com", 
-  "test@gmail.com"
+  "test@gmail.com",
+  "luthfiyyah@gmail.com" // as assumed
 ];
 
 const AuthContext = createContext<AuthContextType>({
   user: null,
   userProfile: null,
+  isAdmin: false,
   loading: true,
   loginWithGoogle: async () => {},
   logout: async () => {},
@@ -74,16 +76,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // User login → ambil atau buat profil di Firestore
         const profileRef = doc(db, "users", firebaseUser.uid);
         const profileSnap = await getDoc(profileRef);
-        const isPremiumEmail = firebaseUser.email ? PREMIUM_EMAILS.includes(firebaseUser.email) : false;
-        const expectedPlan = isPremiumEmail ? "premium" : "free";
+        const isSuperAdmin = firebaseUser.email ? SUPER_ADMIN_EMAILS.includes(firebaseUser.email) : false;
 
         if (profileSnap.exists()) {
           const profileData = profileSnap.data() as UserProfile;
           
-          // Sinkronisasi plan jika daftar PREMIUM_EMAILS berubah
-          if (profileData.plan !== expectedPlan) {
-            await setDoc(profileRef, { plan: expectedPlan }, { merge: true });
-            profileData.plan = expectedPlan;
+          // Pastikan super admin selalu premium
+          if (isSuperAdmin && profileData.plan !== "premium") {
+            await setDoc(profileRef, { plan: "premium" }, { merge: true });
+            profileData.plan = "premium";
           }
           
           setUserProfile(profileData);
@@ -94,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             email: firebaseUser.email || "",
             displayName: firebaseUser.displayName || "",
             photoURL: firebaseUser.photoURL || "",
-            plan: expectedPlan,
+            plan: isSuperAdmin ? "premium" : "free",
             cardsCreated: 0,
           };
           await setDoc(profileRef, {
@@ -137,7 +138,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, userProfile, loading, loginWithGoogle, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      userProfile, 
+      isAdmin: user?.email ? SUPER_ADMIN_EMAILS.includes(user.email) : false,
+      loading, 
+      loginWithGoogle, 
+      logout 
+    }}>
       {children}
     </AuthContext.Provider>
   );
