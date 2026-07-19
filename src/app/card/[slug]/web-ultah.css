@@ -143,11 +143,11 @@ body.content-active {
 .pin-card {
   text-align: center;
   padding: 40px 30px;
-  background: rgba(15, 17, 26, 0.85); /* Frosted Obsidian */
+  background: rgba(255, 255, 255, 0.85); /* Light glassmorphism */
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(232, 208, 165, 0.15); /* Gold border */
+  border: 1px solid rgba(212, 165, 165, 0.4); /* Soft pink border */
   border-radius: 25px;
-  box-shadow: 0 30px 60px rgba(0,0,0,0.8);
+  box-shadow: 0 30px 60px rgba(212, 165, 165, 0.15); /* Soft shadow */
   width: 90%;
   max-width: 350px;
   position: relative;
