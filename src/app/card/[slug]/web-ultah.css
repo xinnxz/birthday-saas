@@ -2,6 +2,7 @@
 
 :root {
   /* Cinematic Color Palette - Premium Bright & Romantic */
+  --bg-intro: #0c0a0b; /* Cinematic true dark for intro screens */
   --bg-dark: #fdf8f5; /* Soft pearl pink */
   --bg-light: #fffaf6; /* Warm cream */
   
@@ -12,6 +13,7 @@
   
   --text-main: #332b2e;
   --text-muted: #8c7b80;
+  --text-intro: #e8d0a5; /* Gold text for dark screens */
   
   /* Typography */
   --font-heading: 'Cormorant Garamond', serif;
@@ -31,21 +33,22 @@
 
 body {
   font-family: var(--font-body);
-  background-color: var(--bg-dark); /* Mulai dari gelap untuk efek bioskop */
-  color: var(--text-main);
+  background-color: var(--bg-intro); /* Mulai dari gelap untuk efek bioskop */
+  color: var(--text-intro);
   overflow-x: hidden;
   line-height: 1.8;
-  transition: background-color 3s var(--ease-cinematic);
+  transition: background-color 3s var(--ease-cinematic), color 3s var(--ease-cinematic);
 }
 body.content-active {
   background-color: var(--bg-light);
+  color: var(--text-main);
 }
 
 /* --- LOADING SCREEN --- */
 .loading-screen {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-color: var(--bg-dark); /* Cerah romantis */
+  background-color: var(--bg-intro); /* Gelap sinematik */
   z-index: 9999;
   display: flex;
   justify-content: center;
@@ -121,8 +124,8 @@ body.content-active {
 
 /* --- PIN SCREEN --- */
 #pin-screen {
-  background: var(--bg-dark);
-  color: var(--deep-burgundy);
+  background: var(--bg-intro);
+  color: var(--text-intro);
 }
 .bouquet-message-card {
   margin-top: 50px;
@@ -143,11 +146,11 @@ body.content-active {
 .pin-card {
   text-align: center;
   padding: 40px 30px;
-  background: rgba(255, 255, 255, 0.85); /* Light glassmorphism */
+  background: rgba(15, 17, 26, 0.85); /* Dark Frosted Obsidian */
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(212, 165, 165, 0.4); /* Soft pink border */
+  border: 1px solid rgba(232, 208, 165, 0.2); /* Soft gold border */
   border-radius: 25px;
-  box-shadow: 0 30px 60px rgba(212, 165, 165, 0.15); /* Soft shadow */
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6); /* Dark shadow */
   width: 90%;
   max-width: 350px;
   position: relative;
@@ -162,14 +165,14 @@ body.content-active {
 }
 
 .pin-title {
-  color: var(--deep-burgundy);
+  color: var(--champagne-gold);
   font-family: var(--font-heading);
   font-size: 1.8rem;
   font-weight: 600;
   margin-bottom: 5px;
 }
 .pin-subtitle {
-  color: var(--text-muted);
+  color: rgba(232, 208, 165, 0.7);
   font-size: 0.85rem;
   margin-bottom: 20px;
   font-weight: 400;
@@ -183,13 +186,13 @@ body.content-active {
 .pin-dot {
   width: 10px; height: 10px;
   border-radius: 50%;
-  border: 1.5px solid rgba(74, 37, 48, 0.3);
+  border: 1.5px solid rgba(232, 208, 165, 0.4);
   transition: all 0.3s;
 }
 .pin-dot.filled {
-  background-color: var(--deep-burgundy);
-  border-color: var(--deep-burgundy);
-  box-shadow: 0 0 10px rgba(74, 37, 48, 0.3);
+  background-color: var(--champagne-gold);
+  border-color: var(--champagne-gold);
+  box-shadow: 0 0 10px rgba(232, 208, 165, 0.5);
 }
 .pin-pad {
   display: grid;
@@ -202,8 +205,8 @@ body.content-active {
   width: 50px; height: 50px;
   border-radius: 50%;
   background: transparent;
-  border: 1px solid rgba(74, 37, 48, 0.15);
-  color: var(--deep-burgundy);
+  border: 1px solid rgba(232, 208, 165, 0.2);
+  color: var(--champagne-gold);
   font-size: 1.1rem;
   font-weight: 500;
   cursor: pointer;
@@ -213,10 +216,10 @@ body.content-active {
   align-items: center;
   margin: 0 auto;
 }
-.pin-btn:hover { background: rgba(74, 37, 48, 0.05); }
-.pin-btn:active { background: rgba(74, 37, 48, 0.1); transform: scale(0.95); }
-.pin-btn.action-btn { font-size: 1.1rem; color: rgba(74, 37, 48, 0.5); }
-.pin-hint { color: rgba(74, 37, 48, 0.6); font-size: 0.75rem; margin-top: 20px; letter-spacing: 1px; }
+.pin-btn:hover { background: rgba(232, 208, 165, 0.1); }
+.pin-btn:active { background: rgba(232, 208, 165, 0.2); transform: scale(0.95); }
+.pin-btn.action-btn { font-size: 1.1rem; color: rgba(232, 208, 165, 0.6); }
+.pin-hint { color: rgba(232, 208, 165, 0.5); font-size: 0.75rem; margin-top: 20px; letter-spacing: 1px; }
 
 .pin-error {
   color: #f9a8b6;
