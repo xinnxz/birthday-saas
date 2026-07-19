@@ -241,7 +241,7 @@ body.content-active {
 
 /* --- GIFT SCREEN --- */
 #gift-screen {
-  background: transparent; /* Overlay di atas main content yang hitam */
+  background: var(--bg-intro); /* Gelap saat awal */
 }
 .giftbox-wrapper {
   cursor: pointer;
