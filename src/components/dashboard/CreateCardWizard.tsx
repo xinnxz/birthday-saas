@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { uploadToCloudinary } from '@/lib/cloudinary/upload';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
 import { AlertCircle, Cake, Camera, UploadCloud, X, Sparkles, ArrowRight, ArrowLeft, Music, PlayCircle, MessageSquareHeart, Map } from 'lucide-react';
 import styles from './wizard.module.css';
 
@@ -113,26 +113,36 @@ const ILLUSTRATION_URLS = [
   "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?q=80&w=600&auto=format&fit=crop",
 ];
 
-export default function CreateCardWizard({ userId }: { userId: string }) {
+interface CreateCardWizardProps {
+  userId?: string;
+  cardId?: string;
+  initialData?: any;
+}
+
+export default function CreateCardWizard({ userId, cardId, initialData }: CreateCardWizardProps) {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState("");
 
+  // Existing Photos (URL strings)
+  const [existingPhotos, setExistingPhotos] = useState<string[]>(initialData?.photos || []);
+
   // Form data
-  const [recipientName, setRecipientName] = useState("");
-  const [senderName, setSenderName] = useState("");
-  const [birthDate, setBirthDate] = useState("");
+  const [recipientName, setRecipientName] = useState(initialData?.recipientName || "");
+  const [senderName, setSenderName] = useState(initialData?.senderName || "");
+  const [birthDate, setBirthDate] = useState(initialData?.birthDate || "");
 
   // Theme & Template
-  const [template, setTemplate] = useState<keyof typeof RELATIONSHIP_TEMPLATES>("partner");
-  const [theme, setTheme] = useState("romantic");
+  const [template, setTemplate] = useState<keyof typeof RELATIONSHIP_TEMPLATES>(initialData?.template || "partner");
+  const [theme, setTheme] = useState(initialData?.theme || "romantic");
 
-  // Dynamic slots foto
+  // Dynamic slots foto (new files)
   const [photos, setPhotos] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [useIllustration, setUseIllustration] = useState(false);
+  // If editing and have photos, we don't need illustration by default
+  const [useIllustration, setUseIllustration] = useState(initialData ? (!initialData.photos || initialData.photos.length === 0) : false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Music upload & preset
@@ -140,15 +150,28 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
   const [presetMusic, setPresetMusic] = useState<number>(0);
   const musicInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Messages & Letter (Filled by Template)
-  const [msg1, setMsg1] = useState(RELATIONSHIP_TEMPLATES.partner.msg1);
-  const [msg2, setMsg2] = useState(RELATIONSHIP_TEMPLATES.partner.msg2);
-  const [msg3, setMsg3] = useState(RELATIONSHIP_TEMPLATES.partner.msg3);
-  const [letter, setLetter] = useState(RELATIONSHIP_TEMPLATES.partner.letter);
+  // Messages & Letter (Filled by Template or initial data)
+  const [msg1, setMsg1] = useState(initialData?.romanticMessages?.[0] || RELATIONSHIP_TEMPLATES[template as keyof typeof RELATIONSHIP_TEMPLATES]?.msg1 || RELATIONSHIP_TEMPLATES.partner.msg1);
+  const [msg2, setMsg2] = useState(initialData?.romanticMessages?.[1] || RELATIONSHIP_TEMPLATES[template as keyof typeof RELATIONSHIP_TEMPLATES]?.msg2 || RELATIONSHIP_TEMPLATES.partner.msg2);
+  const [msg3, setMsg3] = useState(initialData?.romanticMessages?.[2] || RELATIONSHIP_TEMPLATES[template as keyof typeof RELATIONSHIP_TEMPLATES]?.msg3 || RELATIONSHIP_TEMPLATES.partner.msg3);
   
-  // Journey (Filled by Template)
-  const [journey, setJourney] = useState(RELATIONSHIP_TEMPLATES.partner.journey);
-  const [bouquetMessages, setBouquetMessages] = useState(RELATIONSHIP_TEMPLATES.partner.bouquetMessages);
+  // Parse HTML letter content to plain text for textarea (naive parsing by replacing </p><p> with \n\n)
+  let initialLetterText = RELATIONSHIP_TEMPLATES[template as keyof typeof RELATIONSHIP_TEMPLATES]?.letter || RELATIONSHIP_TEMPLATES.partner.letter;
+  if (initialData?.letterContent) {
+    initialLetterText = initialData.letterContent.replace(/<\/p><p>/g, '\n\n').replace(/<[^>]+>/g, '');
+  }
+  const [letter, setLetter] = useState(initialLetterText);
+  
+  // Journey
+  const [journey, setJourney] = useState(initialData?.journey || RELATIONSHIP_TEMPLATES[template as keyof typeof RELATIONSHIP_TEMPLATES]?.journey || RELATIONSHIP_TEMPLATES.partner.journey);
+  const [bouquetMessages, setBouquetMessages] = useState(initialData?.bouquet || RELATIONSHIP_TEMPLATES[template as keyof typeof RELATIONSHIP_TEMPLATES]?.bouquetMessages || RELATIONSHIP_TEMPLATES.partner.bouquetMessages);
+
+  // Initialize preview arrays if using existing photos
+  useEffect(() => {
+    if (existingPhotos.length > 0) {
+      setPreviews([...existingPhotos]);
+    }
+  }, [existingPhotos]);
 
   const totalSteps = 5;
 
@@ -230,6 +253,10 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
         setUploadProgress(80);
         ILLUSTRATION_URLS.forEach(url => photoUrls.push({ url, caption: "" }));
       } else {
+        // Add existing photos first (if any)
+        existingPhotos.forEach(url => photoUrls.push({ url, caption: "" }));
+        
+        // Upload new photos
         const validPhotos = photos;
         for (let i = 0; i < validPhotos.length; i++) {
           setUploadProgress(Math.round(((i) / validPhotos.length) * 100));
@@ -238,18 +265,14 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
         }
       }
 
-      let customMusicUrl = "";
+      let customMusicUrl = initialData?.music?.url || "";
       if (musicFile && presetMusic === 3) {
         setUploadProgress(90);
         customMusicUrl = await uploadToCloudinary(musicFile, "auto");
       }
       setUploadProgress(100);
 
-      const slug = recipientName.toLowerCase().replace(/[^a-z0-9]/g, "-") + "-" + Math.floor(Math.random() * 10000);
-      const pin = generatePin(birthDate);
-
-      // Map journey for Card component
-      const mappedJourney = journey.map((item, idx) => {
+      const mappedJourney = journey.map((item: any, idx: number) => {
         const icons = ["✨", "💬", "🌿", "🎂", "❤️", "🌟"];
         return {
           date: item.year,
@@ -259,13 +282,10 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
         };
       });
 
-      await addDoc(collection(db, "cards"), {
-        ownerId: userId,
-        slug,
+      const cardData = {
         recipientName,
         senderName: senderName.trim() || "Someone Special",
         birthDate: isoDate,
-        pin,
         typewriterMessages: [
           msg1.trim() || RELATIONSHIP_TEMPLATES.partner.msg1,
           msg2.trim() || RELATIONSHIP_TEMPLATES.partner.msg2,
@@ -289,11 +309,27 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
           url: "" 
         }),
         theme: theme,
-        isPublished: true,
-        views: 0,
-        createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
-      });
+      };
+
+      if (cardId) {
+        // Mode Edit
+        await updateDoc(doc(db, "cards", cardId), cardData);
+      } else {
+        // Mode Buat Baru
+        const slug = recipientName.toLowerCase().replace(/[^a-z0-9]/g, "-") + "-" + Math.floor(Math.random() * 10000);
+        const pin = generatePin(birthDate);
+        
+        await addDoc(collection(db, "cards"), {
+          ...cardData,
+          ownerId: userId,
+          slug,
+          pin,
+          isPublished: true,
+          views: 0,
+          createdAt: serverTimestamp(),
+        });
+      }
 
       router.push("/dashboard");
 
@@ -455,14 +491,41 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
             </div>
           )}
 
-          {!useIllustration && photos.length > 0 && (
+          {!useIllustration && (existingPhotos.length > 0 || photos.length > 0) && (
             <div className={styles.dynamicPhotoGrid}>
-              {previews.map((preview, index) => (
-                <div key={index} className={styles.dynamicPhotoSlot}>
-                  <img src={preview} alt={`Photo ${index + 1}`} className={styles.photoPreview} />
+              {/* Render existing photos */}
+              {existingPhotos.map((url, index) => (
+                <div key={`existing-${index}`} className={styles.dynamicPhotoSlot}>
+                  <img src={url} alt={`Existing Photo ${index + 1}`} className={styles.photoPreview} />
                   <button
                     className={styles.removeBtn}
-                    onClick={(e) => { e.stopPropagation(); removePhoto(index); }}
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      setExistingPhotos(prev => prev.filter((_, i) => i !== index));
+                      setPreviews(prev => prev.filter(p => p !== url));
+                    }}
+                  >
+                    <X size={14} />
+                  </button>
+                  <span style={{ position: 'absolute', bottom: 4, left: 4, fontSize: '0.65rem', background: 'rgba(0,0,0,0.5)', color: '#fff', padding: '2px 4px', borderRadius: 4 }}>Lama</span>
+                </div>
+              ))}
+              
+              {/* Render newly uploaded previews */}
+              {previews.filter(p => !existingPhotos.includes(p)).map((url, index) => (
+                <div key={`new-${index}`} className={styles.dynamicPhotoSlot}>
+                  <img src={url} alt={`New Photo ${index + 1}`} className={styles.photoPreview} />
+                  <button
+                    className={styles.removeBtn}
+                    onClick={(e) => { 
+                      e.stopPropagation(); 
+                      const newPhotos = [...photos];
+                      newPhotos.splice(index, 1);
+                      setPhotos(newPhotos);
+                      
+                      const urlToRemove = previews.filter(p => !existingPhotos.includes(p))[index];
+                      setPreviews(prev => prev.filter(p => p !== urlToRemove));
+                    }}
                   >
                     <X size={14} />
                   </button>
@@ -651,7 +714,7 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-            {journey.map((item, idx) => (
+            {journey.map((item: any, idx: number) => (
               <div key={idx} style={{ padding: '16px', border: '1px solid var(--neutral-200)', borderRadius: '12px', background: 'var(--neutral-50)' }}>
                 <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
                   <div style={{ flex: '1' }}>
