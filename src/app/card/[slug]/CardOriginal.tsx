@@ -616,7 +616,7 @@ export default function CardOriginal({ card }: Props) {
             <button className="pin-btn" data-num="0">0</button>
             <button className="pin-btn action-btn" data-num="submit">↵</button>
           </div>
-          <p className="pin-hint">Hint: birth date (DDMMYYYY) 💖</p>
+          <p className="pin-hint">Hint: birth date (DDMMYY) 💖</p>
           <p className="pin-error hidden" id="pin-error">Incorrect. Try again ✨</p>
         </div>
       </div>

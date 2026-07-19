@@ -63,9 +63,11 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
     setPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Generate PIN dari tanggal lahir (DD/MM/YYYY -> DDMMYYYY)
+  // Generate PIN dari tanggal lahir (DD/MM/YYYY -> DDMMYY)
   const generatePin = (dateStr: string): string => {
-    return dateStr.replace(/\//g, '');
+    const [dd, mm, yyyy] = dateStr.split('/');
+    const yy = yyyy.slice(2);
+    return `${dd}${mm}${yy}`;
   };
 
   const handleSubmit = async () => {
@@ -212,7 +214,7 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
               maxLength={10}
               className={styles.input}
             />
-            <span className={styles.hint}>Contoh: 25/12/1998 (Digunakan sebagai PIN kartu)</span>
+            <span className={styles.hint}>Contoh: 25/12/1998 (PIN kartu menjadi 6 digit: DDMMYY)</span>
           </div>
 
           <div className={styles.actions}>
