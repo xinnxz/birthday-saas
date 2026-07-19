@@ -372,13 +372,13 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
           <div className={styles.cardIcon}>
             <Cake size={32} strokeWidth={1.5} />
           </div>
-          <h2 className={styles.cardTitle}>Who is this for?</h2>
+          <h2 className={styles.cardTitle}>Untuk Siapa Kartu Ini?</h2>
           <p className={styles.cardDesc}>
-            Select a relationship template to auto-fill the romantic/greeting text, then enter basic details.
+            Pilih template relasi untuk mengisi otomatis pesan spesial, lalu lengkapi data penerima.
           </p>
 
           <div className={styles.field}>
-            <label className={styles.label}>Relationship Template (Auto-fills text & messages)</label>
+            <label className={styles.label}>Template Relasi (Otomatis mengisi isi pesan)</label>
             <div className={styles.musicGrid}>
               {(Object.keys(RELATIONSHIP_TEMPLATES) as Array<keyof typeof RELATIONSHIP_TEMPLATES>).map(tKey => (
                 <div 
@@ -395,7 +395,7 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label}>Select Visual Theme</label>
+            <label className={styles.label}>Pilih Tema Visual</label>
             <div className={styles.musicGrid}>
               {COLOR_THEMES.map(t => (
                 <div 
@@ -414,10 +414,10 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label}>Recipient Name</label>
+            <label className={styles.label}>Nama Penerima</label>
             <input
               type="text"
-              placeholder="e.g. Aisyah"
+              placeholder="Contoh: Aisyah"
               value={recipientName}
               onChange={e => setRecipientName(e.target.value)}
               className={styles.input}
@@ -425,10 +425,10 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label}>Sender Name (You)</label>
+            <label className={styles.label}>Nama Pengirim (Anda)</label>
             <input
               type="text"
-              placeholder="e.g. Budi (Optional)"
+              placeholder="Contoh: Budi (Opsional)"
               value={senderName}
               onChange={e => setSenderName(e.target.value)}
               className={styles.input}
@@ -436,15 +436,15 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label}>Birth Date (Used for PIN)</label>
+            <label className={styles.label}>Tanggal Lahir (Digunakan sebagai PIN)</label>
             <input
               type="text"
-              placeholder="DD/MM/YYYY (e.g. 14/02/2000)"
+              placeholder="DD/MM/YYYY (Contoh: 14/02/2000)"
               value={birthDate}
               onChange={e => setBirthDate(e.target.value)}
               className={styles.input}
             />
-            <span className={styles.hint}>Guests must enter this PIN to open the gift card.</span>
+            <span className={styles.hint}>Penerima harus memasukkan PIN ini untuk membuka kado.</span>
           </div>
 
           <div className={styles.actions}>
@@ -453,7 +453,7 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
               onClick={() => setStep(2)}
               disabled={!isStep1Valid}
             >
-              Next — Upload Photos <ArrowRight size={16} />
+              Lanjut — Unggah Foto <ArrowRight size={16} />
             </button>
           </div>
         </div>
@@ -465,9 +465,9 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
           <div className={styles.cardIcon}>
             <Camera size={32} strokeWidth={1.5} />
           </div>
-          <h2 className={styles.cardTitle}>Memories (Photos)</h2>
+          <h2 className={styles.cardTitle}>Galeri Kenangan (Foto)</h2>
           <p className={styles.cardDesc}>
-            Upload special photos of you two. Or just use our aesthetic illustrations if you haven't prepared any.
+            Unggah foto-foto spesial momen kebersamaan Anda. Atau gunakan ilustrasi estetik kami jika Anda belum menyiapkan foto.
           </p>
 
           {!useIllustration && (
@@ -476,9 +476,9 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
                 <Camera size={32} strokeWidth={1.5} color={photos.length > 0 ? 'var(--brand-primary)' : 'inherit'} />
               </div>
               {photos.length > 0 ? (
-                <p style={{ color: 'var(--brand-primary)' }}>{photos.length} photos selected (Click to add more)</p>
+                <p style={{ color: 'var(--brand-primary)' }}>{photos.length} foto dipilih (Klik untuk menambah)</p>
               ) : (
-                <p>Click to select image files from your device</p>
+                <p>Klik untuk memilih file gambar dari perangkat Anda</p>
               )}
               <input
                 ref={fileInputRef}
@@ -536,14 +536,14 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
 
           {photos.length === 0 && (
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <p style={{ fontSize: '0.9rem', color: 'var(--neutral-500)', marginBottom: '12px' }}>Or</p>
+              <p style={{ fontSize: '0.9rem', color: 'var(--neutral-500)', marginBottom: '12px' }}>Atau</p>
               <button 
                 className={styles.btnSecondary} 
                 style={{ width: '100%', justifyContent: 'center', borderColor: useIllustration ? 'var(--brand-primary)' : '', backgroundColor: useIllustration ? 'rgba(212, 165, 165, 0.1)' : '' }}
                 onClick={() => setUseIllustration(!useIllustration)}
               >
                 <Sparkles size={16} style={{ marginRight: '8px' }} /> 
-                {useIllustration ? 'Using Aesthetic Illustrations (Cancel)' : 'Skip & Use Aesthetic Illustrations'}
+                {useIllustration ? 'Menggunakan Ilustrasi Estetik (Batalkan)' : 'Lewati & Gunakan Ilustrasi Estetik'}
               </button>
             </div>
           )}
@@ -553,14 +553,14 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
               className={styles.btnSecondary}
               onClick={() => setStep(1)}
             >
-              <ArrowLeft size={16} /> Back
+              <ArrowLeft size={16} /> Kembali
             </button>
             <button
               className={styles.btnPrimary}
               onClick={() => setStep(3)}
               disabled={!hasPhotos}
             >
-              Next — Choose Music <ArrowRight size={16} />
+              Lanjut — Pilih Musik <ArrowRight size={16} />
             </button>
           </div>
         </div>
@@ -572,9 +572,9 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
           <div className={styles.cardIcon}>
             <Music size={32} strokeWidth={1.5} />
           </div>
-          <h2 className={styles.cardTitle}>Background Music</h2>
+          <h2 className={styles.cardTitle}>Musik Latar</h2>
           <p className={styles.cardDesc}>
-            Select a song that will play automatically when the gift is opened. No download needed!
+            Pilih lagu yang akan diputar otomatis saat kado dibuka.
           </p>
 
           <div className={styles.musicGrid}>
@@ -603,7 +603,7 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
               {musicFile ? (
                 <p style={{ color: 'var(--success)' }}>{musicFile.name}</p>
               ) : (
-                <p>Click to select audio / MP3 file from your device</p>
+                <p>Klik untuk memilih file audio / MP3 dari perangkat Anda</p>
               )}
               <input
                 ref={musicInputRef}
@@ -618,7 +618,7 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
           {presetMusic === 3 && musicFile && (
             <div style={{ textAlign: 'center', marginBottom: '24px' }}>
               <button onClick={removeMusic} className={styles.btnSecondary} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
-                <X size={14} style={{ marginRight: '4px' }} /> Remove Music
+                <X size={14} style={{ marginRight: '4px' }} /> Hapus Musik
               </button>
             </div>
           )}
@@ -628,13 +628,13 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
               className={styles.btnSecondary}
               onClick={() => setStep(2)}
             >
-              <ArrowLeft size={16} /> Back
+              <ArrowLeft size={16} /> Kembali
             </button>
             <button
               className={styles.btnPrimary}
               onClick={() => setStep(4)}
             >
-              Next — Love Letter <ArrowRight size={16} />
+              Lanjut — Surat Cinta <ArrowRight size={16} />
             </button>
           </div>
         </div>
@@ -646,13 +646,13 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
           <div className={styles.cardIcon}>
             <MessageSquareHeart size={32} strokeWidth={1.5} />
           </div>
-          <h2 className={styles.cardTitle}>Love Letter</h2>
+          <h2 className={styles.cardTitle}>Surat Cinta</h2>
           <p className={styles.cardDesc}>
-            These messages are auto-filled from the {RELATIONSHIP_TEMPLATES[template].name} template. Feel free to tweak them to make them personal!
+            Pesan ini otomatis terisi dari template {RELATIONSHIP_TEMPLATES[template].name}. Jangan ragu untuk mengubahnya agar lebih personal!
           </p>
 
           <div className={styles.field}>
-            <label className={styles.label}>Short Messages (Typewriter effect)</label>
+            <label className={styles.label}>Pesan Singkat (Efek Mesin Tik)</label>
             <input
               type="text"
               value={msg1}
@@ -676,7 +676,7 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
           </div>
 
           <div className={styles.field}>
-            <label className={styles.label}>Main Letter</label>
+            <label className={styles.label}>Surat Utama</label>
             <textarea
               value={letter}
               onChange={e => setLetter(e.target.value)}
@@ -690,13 +690,13 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
               className={styles.btnSecondary}
               onClick={() => setStep(3)}
             >
-              <ArrowLeft size={16} /> Back
+              <ArrowLeft size={16} /> Kembali
             </button>
             <button
               className={styles.btnPrimary}
               onClick={() => setStep(5)}
             >
-              Next — Our Journey <ArrowRight size={16} />
+              Lanjut — Momen Spesial <ArrowRight size={16} />
             </button>
           </div>
         </div>
@@ -708,9 +708,9 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
           <div className={styles.cardIcon}>
             <Map size={32} strokeWidth={1.5} />
           </div>
-          <h2 className={styles.cardTitle}>Our Journey (Timeline)</h2>
+          <h2 className={styles.cardTitle}>Momen Spesial (Perjalanan)</h2>
           <p className={styles.cardDesc}>
-            Edit these special milestones according to your real journey, or just leave the beautiful defaults.
+            Edit momen-momen spesial ini sesuai dengan perjalanan nyata Anda, atau biarkan menggunakan teks default kami.
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
@@ -718,34 +718,34 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
               <div key={idx} style={{ padding: '16px', border: '1px solid var(--neutral-200)', borderRadius: '12px', background: 'var(--neutral-50)' }}>
                 <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
                   <div style={{ flex: '1' }}>
-                    <label className={styles.label}>Year / Time</label>
+                    <label className={styles.label}>Tahun / Waktu</label>
                     <input
                       type="text"
                       value={item.year}
                       onChange={e => updateJourney(idx, 'year', e.target.value)}
                       className={styles.input}
-                      placeholder="e.g. 2020"
+                      placeholder="Contoh: 2020"
                     />
                   </div>
                   <div style={{ flex: '2' }}>
-                    <label className={styles.label}>Title</label>
+                    <label className={styles.label}>Judul</label>
                     <input
                       type="text"
                       value={item.title}
                       onChange={e => updateJourney(idx, 'title', e.target.value)}
                       className={styles.input}
-                      placeholder="e.g. First Met"
+                      placeholder="Contoh: Pertama Bertemu"
                     />
                   </div>
                 </div>
                 <div>
-                  <label className={styles.label}>Short Description</label>
+                  <label className={styles.label}>Deskripsi Singkat</label>
                   <input
                     type="text"
                     value={item.desc}
                     onChange={e => updateJourney(idx, 'desc', e.target.value)}
                     className={styles.input}
-                    placeholder="Short story about this..."
+                    placeholder="Cerita singkat tentang momen ini..."
                   />
                 </div>
               </div>
@@ -757,7 +757,7 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
               <div className={styles.progressBar}>
                 <div className={styles.progressFill} style={{ width: `${uploadProgress}%` }} />
               </div>
-              <span className={styles.progressText}>Creating your magic card... {uploadProgress}%</span>
+              <span className={styles.progressText}>Sedang memproses kartu spesial Anda... {uploadProgress}%</span>
             </div>
           )}
 
@@ -767,14 +767,14 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
               onClick={() => setStep(4)}
               disabled={loading}
             >
-              <ArrowLeft size={16} /> Back
+              <ArrowLeft size={16} /> Kembali
             </button>
             <button
               className={styles.btnPrimary}
               onClick={handleSubmit}
               disabled={loading}
             >
-              {loading ? 'Creating...' : <><Sparkles size={16} /> Create Card Now!</>}
+              {loading ? 'Memproses...' : <><Sparkles size={16} /> {cardId ? 'Simpan Perubahan!' : 'Simpan & Buat Kartu!'}</>}
             </button>
           </div>
         </div>
