@@ -1,9 +1,9 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400;1,500&family=Montserrat:wght@200;300;400&family=Alex+Brush&display=swap');
 
 :root {
-  /* Cinematic Color Palette */
-  --bg-dark: #1a1518; /* Sangat gelap, ada hint of burgundy */
-  --bg-light: #f9f5f6; /* Soft pearl pink */
+  /* Cinematic Color Palette - Premium Bright & Romantic */
+  --bg-dark: #fdf8f5; /* Soft pearl pink */
+  --bg-light: #fffaf6; /* Warm cream */
   
   --dusty-rose: #d4a5a5;
   --champagne-gold: #e8d0a5;
@@ -45,7 +45,7 @@ body.content-active {
 .loading-screen {
   position: fixed;
   top: 0; left: 0; right: 0; bottom: 0;
-  background-color: #2a151d; /* Sangat gelap burgundy untuk kontras dramatis */
+  background-color: var(--bg-dark); /* Cerah romantis */
   z-index: 9999;
   display: flex;
   justify-content: center;
@@ -121,24 +121,24 @@ body.content-active {
 
 /* --- PIN SCREEN --- */
 #pin-screen {
-  background: radial-gradient(circle at center, #181922 0%, #08090d 100%); /* Obsidian Midnight */
-  color: var(--champagne-gold);
+  background: var(--bg-dark);
+  color: var(--deep-burgundy);
 }
 .bouquet-message-card {
   margin-top: 50px;
   padding: 30px 40px;
-  background: #4a2530; /* Background lebih gelap agar kontras */
-  backdrop-filter: blur(15px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(212, 165, 165, 0.4);
+  border-radius: 24px;
   width: 90%;
   max-width: 600px;
   text-align: center;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+  box-shadow: 0 30px 60px rgba(212, 165, 165, 0.15);
   opacity: 0;
   transform: translateY(20px);
   transition: all 0.6s var(--ease-cinematic);
-  color: #ffffff; /* Teks terang di atas background gelap */
+  color: var(--deep-burgundy);
 }
 .pin-card {
   text-align: center;
@@ -162,17 +162,17 @@ body.content-active {
 }
 
 .pin-title {
-  color: #fff;
+  color: var(--deep-burgundy);
   font-family: var(--font-heading);
   font-size: 1.8rem;
-  font-weight: 400;
+  font-weight: 600;
   margin-bottom: 5px;
 }
 .pin-subtitle {
-  color: rgba(255, 255, 255, 0.6);
+  color: var(--text-muted);
   font-size: 0.85rem;
   margin-bottom: 20px;
-  font-weight: 300;
+  font-weight: 400;
 }
 .pin-dots {
   display: flex;
@@ -183,13 +183,13 @@ body.content-active {
 .pin-dot {
   width: 10px; height: 10px;
   border-radius: 50%;
-  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border: 1.5px solid rgba(74, 37, 48, 0.3);
   transition: all 0.3s;
 }
 .pin-dot.filled {
-  background-color: #fff;
-  border-color: #fff;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  background-color: var(--deep-burgundy);
+  border-color: var(--deep-burgundy);
+  box-shadow: 0 0 10px rgba(74, 37, 48, 0.3);
 }
 .pin-pad {
   display: grid;
@@ -202,10 +202,10 @@ body.content-active {
   width: 50px; height: 50px;
   border-radius: 50%;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #fff;
+  border: 1px solid rgba(74, 37, 48, 0.15);
+  color: var(--deep-burgundy);
   font-size: 1.1rem;
-  font-weight: 300;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
@@ -213,10 +213,10 @@ body.content-active {
   align-items: center;
   margin: 0 auto;
 }
-.pin-btn:hover { background: rgba(255, 255, 255, 0.1); }
-.pin-btn:active { background: rgba(255, 255, 255, 0.2); transform: scale(0.95); }
-.pin-btn.action-btn { font-size: 1.1rem; color: rgba(255, 255, 255, 0.5); }
-.pin-hint { color: rgba(255, 255, 255, 0.4); font-size: 0.75rem; margin-top: 20px; letter-spacing: 1px; }
+.pin-btn:hover { background: rgba(74, 37, 48, 0.05); }
+.pin-btn:active { background: rgba(74, 37, 48, 0.1); transform: scale(0.95); }
+.pin-btn.action-btn { font-size: 1.1rem; color: rgba(74, 37, 48, 0.5); }
+.pin-hint { color: rgba(74, 37, 48, 0.6); font-size: 0.75rem; margin-top: 20px; letter-spacing: 1px; }
 
 .pin-error {
   color: #f9a8b6;
