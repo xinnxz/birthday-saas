@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { uploadToCloudinary } from '@/lib/cloudinary/upload';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
-import { AlertCircle, Cake, Camera, UploadCloud, X, Sparkles, ArrowRight, ArrowLeft, Music, PlayCircle, MessageSquareHeart, Map } from 'lucide-react';
+import { AlertCircle, Cake, Camera, UploadCloud, X, Sparkles, ArrowRight, ArrowLeft, Music, PlayCircle, MessageSquareHeart, Map, ImagePlus } from 'lucide-react';
 import styles from './wizard.module.css';
 
 const RELATIONSHIP_TEMPLATES = {
@@ -141,8 +141,11 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
   // Dynamic slots foto (new files)
   const [photos, setPhotos] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  // If editing and have photos, we don't need illustration by default
-  const [useIllustration, setUseIllustration] = useState(initialData ? (!initialData.photos || initialData.photos.length === 0) : false);
+  
+  // Drag and drop states
+  const [isDraggingPhotos, setIsDraggingPhotos] = useState(false);
+  const [isDraggingMusic, setIsDraggingMusic] = useState(false);
+  
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Music upload & preset
@@ -194,20 +197,26 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
 
   const handleMultiplePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      setUseIllustration(false);
       const newFiles = Array.from(e.target.files);
       setPhotos((prev) => [...prev, ...newFiles]);
 
-      newFiles.forEach((file) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          setPreviews((prev) => [...prev, reader.result as string]);
-        };
-        reader.readAsDataURL(file);
-      });
-      
+      const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
+      setPreviews((prev) => [...prev, ...newPreviews]);
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
+      }
+    }
+  };
+
+  const handlePhotoDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDraggingPhotos(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const newFiles = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+      if (newFiles.length > 0) {
+        setPhotos((prev) => [...prev, ...newFiles]);
+        const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
+        setPreviews((prev) => [...prev, ...newPreviews]);
       }
     }
   };
@@ -223,6 +232,17 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
     }
   };
 
+  const handleMusicDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDraggingMusic(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      if (file.type.startsWith('audio/')) {
+        setMusicFile(file);
+      }
+    }
+  };
+
   const removeMusic = () => {
     setMusicFile(null);
     if (musicInputRef.current) musicInputRef.current.value = "";
@@ -233,10 +253,9 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
   };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    let val = e.target.value.replace(/\D/g, ''); // Hanya simpan angka
-    if (val.length > 8) val = val.slice(0, 8); // Maksimal 8 digit (DDMMYYYY)
+    let val = e.target.value.replace(/\D/g, ''); 
+    if (val.length > 8) val = val.slice(0, 8); 
     
-    // Format menjadi DD/MM/YYYY
     let formatted = val;
     if (val.length > 4) {
       formatted = `${val.slice(0, 2)}/${val.slice(2, 4)}/${val.slice(4)}`;
@@ -268,18 +287,17 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
 
       const photoUrls: { url: string; caption: string }[] = [];
       
-      if (useIllustration) {
+      if (photos.length === 0 && existingPhotos.length === 0) {
         setUploadProgress(80);
         ILLUSTRATION_URLS.forEach(url => photoUrls.push({ url, caption: "" }));
       } else {
-        // Add existing photos first (if any)
+        // Add existing photos first
         existingPhotos.forEach(url => photoUrls.push({ url, caption: "" }));
         
         // Upload new photos
-        const validPhotos = photos;
-        for (let i = 0; i < validPhotos.length; i++) {
-          setUploadProgress(Math.round(((i) / validPhotos.length) * 100));
-          const url = await uploadToCloudinary(validPhotos[i], "image");
+        for (let i = 0; i < photos.length; i++) {
+          setUploadProgress(Math.round(((i) / photos.length) * 100));
+          const url = await uploadToCloudinary(photos[i], "image");
           photoUrls.push({ url, caption: "" });
         }
       }
@@ -360,7 +378,6 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
   };
 
   const isStep1Valid = recipientName.trim().length > 0 && birthDate.length === 10;
-  const hasPhotos = photos.length > 0 || useIllustration || existingPhotos.length > 0;
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.target instanceof HTMLTextAreaElement) return;
@@ -368,7 +385,7 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
     if (e.key === 'Enter') {
       e.preventDefault();
       if (step === 1 && isStep1Valid) setStep(2);
-      else if (step === 2 && hasPhotos) setStep(3);
+      else if (step === 2) setStep(3);
       else if (step === 3) setStep(4);
       else if (step === 4) setStep(5);
       else if (step === 5 && !loading) handleSubmit();
@@ -495,35 +512,43 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
       {step === 2 && (
         <div className={styles.card}>
           <div className={styles.cardIcon}>
-            <Camera size={32} strokeWidth={1.5} />
+            <ImagePlus size={32} strokeWidth={1.5} />
           </div>
           <h2 className={styles.cardTitle}>Galeri Kenangan (Foto)</h2>
           <p className={styles.cardDesc}>
-            Unggah foto-foto spesial momen kebersamaan Anda. Atau gunakan ilustrasi estetik kami jika Anda belum menyiapkan foto.
+            Unggah foto-foto spesial momen kebersamaan Anda (opsional). Jika dilewati, kami akan menggunakan ilustrasi estetik default.
           </p>
 
-          {!useIllustration && (
-            <div className={styles.uploadArea} onClick={() => fileInputRef.current?.click()} style={photos.length > 0 ? { borderColor: 'var(--brand-primary)' } : {}}>
-              <div className={styles.uploadIcon}>
-                <Camera size={32} strokeWidth={1.5} color={photos.length > 0 ? 'var(--brand-primary)' : 'inherit'} />
-              </div>
-              {photos.length > 0 ? (
-                <p style={{ color: 'var(--brand-primary)' }}>{photos.length} foto dipilih (Klik untuk menambah)</p>
-              ) : (
-                <p>Klik untuk memilih file gambar dari perangkat Anda</p>
-              )}
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                multiple
-                onChange={handleMultiplePhotoSelect}
-                style={{ display: 'none' }}
-              />
+          <div 
+            className={styles.uploadArea} 
+            onClick={() => fileInputRef.current?.click()} 
+            onDragOver={(e) => { e.preventDefault(); setIsDraggingPhotos(true); }}
+            onDragLeave={() => setIsDraggingPhotos(false)}
+            onDrop={handlePhotoDrop}
+            style={{
+              borderColor: isDraggingPhotos ? 'var(--brand-primary)' : (photos.length > 0 ? 'var(--brand-primary)' : ''),
+              backgroundColor: isDraggingPhotos ? 'rgba(212, 165, 165, 0.1)' : ''
+            }}
+          >
+            <div className={styles.uploadIcon}>
+              <ImagePlus size={48} strokeWidth={1.5} color={photos.length > 0 ? 'var(--brand-primary)' : 'inherit'} />
             </div>
-          )}
+            {photos.length > 0 ? (
+              <p style={{ color: 'var(--brand-primary)' }}>{photos.length} foto dipilih (Klik atau drag file untuk menambah)</p>
+            ) : (
+              <p>Klik atau Seret (Drag & Drop) file gambar ke sini</p>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleMultiplePhotoSelect}
+              style={{ display: 'none' }}
+            />
+          </div>
 
-          {!useIllustration && (existingPhotos.length > 0 || photos.length > 0) && (
+          {(existingPhotos.length > 0 || photos.length > 0) && (
             <div className={styles.dynamicPhotoGrid}>
               {/* Render existing photos */}
               {existingPhotos.map((url, index) => (
@@ -566,20 +591,6 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
             </div>
           )}
 
-          {photos.length === 0 && (
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <p style={{ fontSize: '0.9rem', color: 'var(--neutral-500)', marginBottom: '12px' }}>Atau</p>
-              <button 
-                className={styles.btnSecondary} 
-                style={{ width: '100%', justifyContent: 'center', borderColor: useIllustration ? 'var(--brand-primary)' : '', backgroundColor: useIllustration ? 'rgba(212, 165, 165, 0.1)' : '' }}
-                onClick={() => setUseIllustration(!useIllustration)}
-              >
-                <Sparkles size={16} style={{ marginRight: '8px' }} /> 
-                {useIllustration ? 'Menggunakan Ilustrasi Estetik (Batalkan)' : 'Lewati & Gunakan Ilustrasi Estetik'}
-              </button>
-            </div>
-          )}
-
           <div className={styles.actions}>
             <button
               className={styles.btnSecondary}
@@ -590,7 +601,6 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
             <button
               className={styles.btnPrimary}
               onClick={() => setStep(3)}
-              disabled={!hasPhotos}
             >
               Lanjut <ArrowRight size={16} />
             </button>
@@ -628,14 +638,25 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
           </div>
 
           {presetMusic === 3 && (
-            <div className={styles.uploadArea} onClick={() => musicInputRef.current?.click()} style={{ ...(musicFile ? { borderColor: 'var(--success)' } : {}), marginTop: '16px' }}>
+            <div 
+              className={styles.uploadArea} 
+              onClick={() => musicInputRef.current?.click()} 
+              onDragOver={(e) => { e.preventDefault(); setIsDraggingMusic(true); }}
+              onDragLeave={() => setIsDraggingMusic(false)}
+              onDrop={handleMusicDrop}
+              style={{ 
+                ...(musicFile ? { borderColor: 'var(--success)' } : {}), 
+                ...(isDraggingMusic ? { borderColor: 'var(--success)', backgroundColor: 'rgba(34, 197, 94, 0.1)' } : {}),
+                marginTop: '16px' 
+              }}
+            >
               <div className={styles.uploadIcon}>
-                <UploadCloud size={32} strokeWidth={1.5} color={musicFile ? 'var(--success)' : 'inherit'} />
+                <UploadCloud size={48} strokeWidth={1.5} color={musicFile ? 'var(--success)' : 'inherit'} />
               </div>
               {musicFile ? (
                 <p style={{ color: 'var(--success)' }}>{musicFile.name}</p>
               ) : (
-                <p>Klik untuk memilih file audio / MP3 dari perangkat Anda</p>
+                <p>Klik atau Seret (Drag & Drop) file audio/MP3 ke sini</p>
               )}
               <input
                 ref={musicInputRef}
