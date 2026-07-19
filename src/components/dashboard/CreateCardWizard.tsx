@@ -468,7 +468,7 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
               onClick={() => setStep(2)}
               disabled={!isStep1Valid}
             >
-              Lanjut — Unggah Foto <ArrowRight size={16} />
+              Lanjut <ArrowRight size={16} />
             </button>
           </div>
         </div>
@@ -575,7 +575,7 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
               onClick={() => setStep(3)}
               disabled={!hasPhotos}
             >
-              Lanjut — Pilih Musik <ArrowRight size={16} />
+              Lanjut <ArrowRight size={16} />
             </button>
           </div>
         </div>
@@ -649,7 +649,7 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
               className={styles.btnPrimary}
               onClick={() => setStep(4)}
             >
-              Lanjut — Surat Cinta <ArrowRight size={16} />
+              Lanjut <ArrowRight size={16} />
             </button>
           </div>
         </div>
@@ -711,7 +711,7 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
               className={styles.btnPrimary}
               onClick={() => setStep(5)}
             >
-              Lanjut — Momen Spesial <ArrowRight size={16} />
+              Lanjut <ArrowRight size={16} />
             </button>
           </div>
         </div>
