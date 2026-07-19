@@ -68,7 +68,7 @@ export interface BirthdayCard {
   music: MusicConfig;
 
   // Metadata
-  theme: "romantic" | "elegant" | "playful";
+  theme: string;
   isPublished: boolean;
   views: number;
   createdAt?: Timestamp;

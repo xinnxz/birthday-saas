@@ -24,7 +24,7 @@ import { Sparkles, AlertCircle, Cake, CheckCircle2, FileEdit, Eye, Pencil, Exter
 import styles from "@/components/dashboard/dashboard.module.css";
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const [cards, setCards] = useState<BirthdayCard[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState("");
@@ -82,21 +82,28 @@ export default function DashboardPage() {
     }
   };
 
-  return (
-    <div>
-      {/* Header */}
-      <div className={styles.pageHeader}>
+  const handleCreateNewClick = (e: React.MouseEvent) => {
+    if (userProfile?.plan === 'free' && cards.length >= 1) {
+      e.preventDefault();
+          alert("Batas Akun Free Tercapai. Anda hanya bisa membuat 1 kartu aktif. Hapus kartu lama atau upgrade ke Premium.");
+        }
+      };
+
+      return (
         <div>
-          <h1 className={styles.pageTitle}>Kartu Saya</h1>
-          <p className={styles.pageSubtitle}>
-            Kelola semua kartu ulang tahun digital Anda
-          </p>
-        </div>
-        <Link href="/dashboard/create" className={styles.createBtn}>
-          <Sparkles size={18} />
-          Buat Kartu Baru
-        </Link>
-      </div>
+          {/* Header */}
+          <div className={styles.pageHeader}>
+            <div>
+              <h1 className={styles.pageTitle}>Kartu Saya</h1>
+              <p className={styles.pageSubtitle}>
+                Kelola semua kartu ulang tahun digital Anda
+              </p>
+            </div>
+            <Link href="/dashboard/create" className={styles.createBtn} onClick={handleCreateNewClick}>
+              <Sparkles size={18} />
+              Buat Kartu Baru
+            </Link>
+          </div>
 
       {/* Error State */}
       {fetchError && (

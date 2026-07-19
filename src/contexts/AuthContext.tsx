@@ -35,6 +35,13 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
+// Daftar email yang mendapatkan akses Premium tanpa batas. 
+// Anda bisa menambahkan email Anda atau email pelanggan di sini.
+const PREMIUM_EMAILS = [
+  "admin@gmail.com", 
+  "test@gmail.com"
+];
+
 const AuthContext = createContext<AuthContextType>({
   user: null,
   userProfile: null,
@@ -67,9 +74,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         // User login → ambil atau buat profil di Firestore
         const profileRef = doc(db, "users", firebaseUser.uid);
         const profileSnap = await getDoc(profileRef);
+        const isPremiumEmail = firebaseUser.email ? PREMIUM_EMAILS.includes(firebaseUser.email) : false;
+        const expectedPlan = isPremiumEmail ? "premium" : "free";
 
         if (profileSnap.exists()) {
-          setUserProfile(profileSnap.data() as UserProfile);
+          const profileData = profileSnap.data() as UserProfile;
+          
+          // Sinkronisasi plan jika daftar PREMIUM_EMAILS berubah
+          if (profileData.plan !== expectedPlan) {
+            await setDoc(profileRef, { plan: expectedPlan }, { merge: true });
+            profileData.plan = expectedPlan;
+          }
+          
+          setUserProfile(profileData);
         } else {
           // User baru → buat profil otomatis
           const newProfile: UserProfile = {
@@ -77,7 +94,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             email: firebaseUser.email || "",
             displayName: firebaseUser.displayName || "",
             photoURL: firebaseUser.photoURL || "",
-            plan: "free",
+            plan: expectedPlan,
             cardsCreated: 0,
           };
           await setDoc(profileRef, {

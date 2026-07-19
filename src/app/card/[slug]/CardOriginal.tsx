@@ -318,6 +318,7 @@ export default function CardOriginal({ card }: Props) {
           text.innerHTML = `<strong style="font-size:1.3em;">${item.name}</strong><br><br>`;
           let charIndex = 0;
           function typeChar() {
+            if (!text) return;
             if (charIndex < item.message.length) {
               text.innerHTML += item.message.charAt(charIndex);
               charIndex++;
@@ -557,6 +558,7 @@ export default function CardOriginal({ card }: Props) {
       if (!container) return;
       let messageIndex = 0, charIndex = 0, isDeleting = false, typingSpeed = 100;
       function type() {
+        if (!container) return;
         const currentMsg = CONFIG.typewriterMessages[messageIndex];
         if (isDeleting) { container.textContent = currentMsg.substring(0, charIndex - 1); charIndex--; typingSpeed = 40; }
         else { container.textContent = currentMsg.substring(0, charIndex + 1); charIndex++; typingSpeed = 100; }
