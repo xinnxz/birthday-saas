@@ -20,6 +20,7 @@ import { deleteCard } from "@/lib/db";
 import { BirthdayCard } from "@/types";
 import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
 import { db } from "@/lib/firebase";
+import { Sparkles, AlertCircle, Cake, CheckCircle2, FileEdit, Eye, Pencil, ExternalLink, Trash2 } from "lucide-react";
 import styles from "@/components/dashboard/dashboard.module.css";
 
 export default function DashboardPage() {
@@ -92,7 +93,7 @@ export default function DashboardPage() {
           </p>
         </div>
         <Link href="/dashboard/create" className={styles.createBtn}>
-          <span>✨</span>
+          <Sparkles size={18} />
           Buat Kartu Baru
         </Link>
       </div>
@@ -108,7 +109,10 @@ export default function DashboardPage() {
           marginBottom: '1.5rem',
           fontSize: '0.9rem'
         }}>
-          ⚠️ <strong>Error:</strong> {fetchError}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+            <AlertCircle size={20} />
+            <strong>Error:</strong> {fetchError}
+          </div>
           <br />
           <small style={{ color: '#999' }}>
             Pastikan Firestore Rules Anda sudah mengizinkan read/write. 
@@ -135,13 +139,15 @@ export default function DashboardPage() {
       {/* Empty State */}
       {!loading && cards.length === 0 && !fetchError && (
         <div className={styles.emptyState}>
-          <div className={styles.emptyIcon}>🎂</div>
+          <div className={styles.emptyIcon}>
+            <Cake size={48} strokeWidth={1} />
+          </div>
           <h2 className={styles.emptyTitle}>Belum ada kartu</h2>
           <p className={styles.emptyDesc}>
             Buat kartu ulang tahun digital pertama Anda dan kirimkan ke orang tersayang!
           </p>
           <Link href="/dashboard/create" className={styles.createBtn}>
-            <span>✨</span>
+            <Sparkles size={18} />
             Buat Kartu Pertama
           </Link>
         </div>
@@ -172,10 +178,14 @@ export default function DashboardPage() {
                         : styles.statusDraft
                     }`}
                   >
-                    {card.isPublished ? "✅ Published" : "📝 Draft"}
+                    {card.isPublished ? (
+                      <><CheckCircle2 size={14} /> Published</>
+                    ) : (
+                      <><FileEdit size={14} /> Draft</>
+                    )}
                   </span>
                   <span className={styles.cardMetaItem}>
-                    👁️ {card.views || 0} views
+                    <Eye size={14} /> {card.views || 0} views
                   </span>
                 </div>
               </div>
@@ -186,7 +196,7 @@ export default function DashboardPage() {
                   href={`/dashboard/${card.id}/edit`}
                   className={styles.actionBtn}
                 >
-                  ✏️ Edit
+                  <Pencil size={16} /> Edit
                 </Link>
                 {card.isPublished && (
                   <a
@@ -195,14 +205,14 @@ export default function DashboardPage() {
                     rel="noopener noreferrer"
                     className={styles.actionBtn}
                   >
-                    🔗 Lihat
+                    <ExternalLink size={16} /> Lihat
                   </a>
                 )}
                 <button
                   onClick={() => handleDelete(card.id!, card.recipientName)}
                   className={`${styles.actionBtn} ${styles.actionBtnDanger}`}
                 >
-                  🗑️
+                  <Trash2 size={16} />
                 </button>
               </div>
             </div>

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { uploadToCloudinary } from '@/lib/cloudinary/upload';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { AlertCircle, Cake, Camera, UploadCloud, X, Sparkles, ArrowRight, ArrowLeft } from 'lucide-react';
 import styles from './wizard.module.css';
 
 /**
@@ -170,14 +171,16 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
       {/* Error display */}
       {error && (
         <div className={styles.errorBox}>
-          <span>⚠️</span> {error}
+          <AlertCircle size={18} /> {error}
         </div>
       )}
 
       {/* ====== STEP 1: Nama & Tanggal Lahir ====== */}
       {step === 1 && (
         <div className={styles.card}>
-          <div className={styles.cardIcon}>🎂</div>
+          <div className={styles.cardIcon}>
+            <Cake size={32} strokeWidth={1.5} />
+          </div>
           <h2 className={styles.cardTitle}>Siapa yang Ulang Tahun?</h2>
           <p className={styles.cardDesc}>
             Masukkan nama dan tanggal lahir orang yang spesial.
@@ -224,7 +227,7 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
               onClick={() => setStep(2)}
               disabled={!canProceed}
             >
-              Lanjut — Pilih Foto →
+              Lanjut — Pilih Foto <ArrowRight size={16} />
             </button>
           </div>
         </div>
@@ -233,14 +236,18 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
       {/* ====== STEP 2: Upload Foto (Bebas Jumlah) ====== */}
       {step === 2 && (
         <div className={styles.card}>
-          <div className={styles.cardIcon}>📸</div>
+          <div className={styles.cardIcon}>
+            <Camera size={32} strokeWidth={1.5} />
+          </div>
           <h2 className={styles.cardTitle}>Pilih Foto Kenangan</h2>
           <p className={styles.cardDesc}>
             Bebas! Pilih berapapun foto yang Anda inginkan sekaligus. Foto-foto ini akan tampil sebagai galeri polaroid di kartu.
           </p>
 
           <div className={styles.uploadArea} onClick={() => fileInputRef.current?.click()}>
-            <div className={styles.uploadIcon}>📥</div>
+            <div className={styles.uploadIcon}>
+              <UploadCloud size={32} strokeWidth={1.5} />
+            </div>
             <p>Klik di sini untuk memilih banyak foto sekaligus</p>
             <input
               ref={fileInputRef}
@@ -261,7 +268,7 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
                     className={styles.removeBtn}
                     onClick={(e) => { e.stopPropagation(); removePhoto(index); }}
                   >
-                    ✕
+                    <X size={14} />
                   </button>
                 </div>
               ))}
@@ -284,14 +291,14 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
               onClick={() => setStep(1)}
               disabled={loading}
             >
-              ← Kembali
+              <ArrowLeft size={16} /> Kembali
             </button>
             <button
               className={styles.btnPrimary}
               onClick={handleSubmit}
               disabled={loading || !hasPhotos}
             >
-              {loading ? 'Sedang Membuat...' : '✨ Buat Kartu Sekarang!'}
+              {loading ? 'Sedang Membuat...' : <><Sparkles size={16} /> Buat Kartu Sekarang!</>}
             </button>
           </div>
         </div>

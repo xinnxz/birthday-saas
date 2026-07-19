@@ -3,35 +3,37 @@ import styles from "./page.module.css";
 
 // --- DATA UNTUK KONTEN HALAMAN ---
 
+import { Diamond, Heart, Zap, Smartphone, Lock, Music } from "lucide-react";
+
 // Data 6 fitur unggulan yang akan ditampilkan di grid
 const features = [
   {
-    icon: "✨",
+    icon: <Diamond size={32} strokeWidth={1.5} />,
     title: "Desain Premium",
     desc: "Pilihan template kartu ucapan dengan desain elegan dan profesional layaknya merk mewah."
   },
   {
-    icon: "💌",
+    icon: <Heart size={32} strokeWidth={1.5} />,
     title: "Personalisasi Penuh",
     desc: "Sesuaikan pesan, foto, dan musik untuk membuat momen ulang tahun tak terlupakan."
   },
   {
-    icon: "🚀",
+    icon: <Zap size={32} strokeWidth={1.5} />,
     title: "Instan & Mudah",
     desc: "Hanya butuh beberapa menit untuk membuat dan membagikan kartu digital Anda."
   },
   {
-    icon: "📱",
+    icon: <Smartphone size={32} strokeWidth={1.5} />,
     title: "Responsif",
     desc: "Tampil sempurna di berbagai perangkat, dari smartphone hingga layar desktop."
   },
   {
-    icon: "🔒",
+    icon: <Lock size={32} strokeWidth={1.5} />,
     title: "Aman & Privat",
     desc: "Data dan privasi Anda terjamin. Hanya orang yang Anda pilih yang dapat melihat kartu."
   },
   {
-    icon: "🎵",
+    icon: <Music size={32} strokeWidth={1.5} />,
     title: "Latar Belakang Musik",
     desc: "Tambahkan lagu favorit untuk memberikan sentuhan emosional pada ucapan Anda."
   }

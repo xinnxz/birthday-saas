@@ -18,13 +18,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, ReactNode } from "react";
 import Link from "next/link";
+import { LayoutDashboard, Wand2, Settings, LogOut, Gift } from "lucide-react";
 import styles from "./dashboard.module.css";
 
 /** Item navigasi sidebar */
 const NAV_ITEMS = [
-  { href: "/dashboard", label: "Kartu Saya", icon: "🎂" },
-  { href: "/dashboard/create", label: "Buat Kartu", icon: "✨" },
-  { href: "/dashboard/settings", label: "Pengaturan", icon: "⚙️" },
+  { href: "/dashboard", label: "Kartu Saya", icon: <LayoutDashboard size={20} /> },
+  { href: "/dashboard/create", label: "Buat Kartu", icon: <Wand2 size={20} /> },
+  { href: "/dashboard/settings", label: "Pengaturan", icon: <Settings size={20} /> },
 ];
 
 export default function DashboardShell({ children }: { children: ReactNode }) {
@@ -58,7 +59,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
       <aside className={styles.sidebar}>
         {/* Logo / Brand */}
         <div className={styles.brand}>
-          <span className={styles.brandIcon}>🎁</span>
+          <Gift className={styles.brandIcon} size={24} />
           <span className={styles.brandText}>BirthdayGift</span>
         </div>
 
@@ -99,7 +100,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
             </div>
           </div>
           <button onClick={logout} className={styles.logoutBtn} title="Keluar">
-            🚪
+            <LogOut size={18} />
           </button>
         </div>
       </aside>
