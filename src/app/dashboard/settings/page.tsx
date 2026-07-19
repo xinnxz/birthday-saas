@@ -12,10 +12,11 @@ export default function SettingsPage() {
   
   // Admin Panel State
   const [targetEmail, setTargetEmail] = useState("");
+  const [targetPlan, setTargetPlan] = useState<"premium" | "free">("premium");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<{ text: string; type: "success" | "error" } | null>(null);
 
-  const handleUpgrade = async () => {
+  const handleUpdatePlan = async () => {
     if (!targetEmail.trim()) {
       setMessage({ text: "Silakan masukkan email", type: "error" });
       return;
@@ -36,12 +37,12 @@ export default function SettingsPage() {
         const userDoc = snapshot.docs[0];
         const userRef = doc(db, "users", userDoc.id);
 
-        // Update plan jadi premium
+        // Update plan sesuai pilihan
         await updateDoc(userRef, {
-          plan: "premium"
+          plan: targetPlan
         });
 
-        setMessage({ text: `Sukses! Akun ${targetEmail} berhasil di-upgrade ke Premium.`, type: "success" });
+        setMessage({ text: `Sukses! Status akun ${targetEmail} berhasil diubah menjadi ${targetPlan.toUpperCase()}.`, type: "success" });
         setTargetEmail(""); // reset input
       }
     } catch (error: any) {
@@ -103,7 +104,7 @@ export default function SettingsPage() {
             <Star size={20} /> Admin Panel
           </h2>
           <p style={{ marginBottom: '16px', color: '#6b21a8' }}>
-            Upgrade teman atau pembeli Anda ke akun Premium. (Catatan: User harus login ke website minimal 1 kali agar emailnya terdaftar).
+            Ubah status akun teman atau pembeli Anda. (Catatan: User harus login ke website minimal 1 kali agar emailnya terdaftar).
           </p>
 
           {message && (
@@ -120,12 +121,21 @@ export default function SettingsPage() {
               onChange={(e) => setTargetEmail(e.target.value)}
               className={styles.input}
             />
+            <select 
+              value={targetPlan}
+              onChange={(e) => setTargetPlan(e.target.value as "premium" | "free")}
+              className={styles.input}
+              style={{ maxWidth: '150px' }}
+            >
+              <option value="premium">Premium</option>
+              <option value="free">Free Trial</option>
+            </select>
             <button 
-              onClick={handleUpgrade} 
+              onClick={handleUpdatePlan} 
               disabled={loading}
               className={styles.btnPrimary}
             >
-              {loading ? "Memproses..." : "Upgrade ke Premium"}
+              {loading ? "Memproses..." : "Update Status"}
             </button>
           </div>
         </div>
