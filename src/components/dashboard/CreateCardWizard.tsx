@@ -468,7 +468,8 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
               type="text"
               placeholder="Contoh: Aisyah"
               value={recipientName}
-              onChange={e => setRecipientName(capitalizeWords(e.target.value))}
+              onChange={e => setRecipientName(e.target.value)}
+              onBlur={() => setRecipientName(capitalizeWords(recipientName))}
               className={styles.input}
             />
           </div>
@@ -479,7 +480,8 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
               type="text"
               placeholder="Contoh: Budi (Opsional)"
               value={senderName}
-              onChange={e => setSenderName(capitalizeWords(e.target.value))}
+              onChange={e => setSenderName(e.target.value)}
+              onBlur={() => setSenderName(capitalizeWords(senderName))}
               className={styles.input}
             />
           </div>
