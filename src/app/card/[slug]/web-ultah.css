@@ -402,10 +402,15 @@ section {
   letter-spacing: 4px;
   text-transform: uppercase;
   color: var(--deep-burgundy);
-  margin-bottom: -15px;
+  margin-bottom: 0px;
 }
-.hero-line-2 { font-size: 7rem; margin: -20px 0; text-shadow: 0 10px 30px rgba(212, 165, 165, 0.3); }
-.hero-line-3 { font-size: 2.5rem; font-style: italic; color: var(--text-muted); }
+.hero-line-2 { 
+  font-size: 6.5rem; 
+  margin: 10px 0; 
+  text-shadow: 0 10px 30px rgba(212, 165, 165, 0.3); 
+  line-height: 1.2;
+}
+.hero-line-3 { font-size: 2.5rem; font-style: italic; color: var(--text-muted); margin-top: 0px; }
 
 .hero-typewriter {
   margin-top: 30px;
@@ -1178,9 +1183,9 @@ section {
   .section-label { font-size: 1.8rem; }
   
   /* Hero Section */
-  .hero-line-1 { font-size: 1.5rem; letter-spacing: 2px; }
-  .hero-line-2 { font-size: 3.5rem; margin: -10px 0; }
-  .hero-line-3 { font-size: 1.5rem; }
+  .hero-line-1 { font-size: 1.5rem; letter-spacing: 2px; margin-bottom: 0px; }
+  .hero-line-2 { font-size: 3.5rem; margin: 10px 0; line-height: 1.2; }
+  .hero-line-3 { font-size: 1.5rem; margin-top: 0px; }
   .hero-typewriter { font-size: 0.9rem; height: 50px; padding: 0 20px; }
   
   /* Countdown Section */
