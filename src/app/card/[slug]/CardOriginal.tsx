@@ -54,6 +54,34 @@ export default function CardOriginal({ card }: Props) {
       }
     };
 
+    // === APPLY THEME ===
+    const applyTheme = () => {
+      const root = document.documentElement;
+      if (card.theme === 'elegant') {
+        root.style.setProperty('--bg-light', '#1a1a1a');
+        root.style.setProperty('--bg-dark', '#0c0c0c');
+        root.style.setProperty('--text-main', '#f0f0f0');
+        root.style.setProperty('--text-muted', '#a0a0a0');
+        root.style.setProperty('--deep-burgundy', '#d4af37');
+        root.style.setProperty('--dusty-rose', '#8b7355');
+      } else if (card.theme === 'sage') {
+        root.style.setProperty('--bg-light', '#f4f5f0');
+        root.style.setProperty('--bg-dark', '#e6e9df');
+        root.style.setProperty('--text-main', '#2c3e2d');
+        root.style.setProperty('--text-muted', '#5c6e5d');
+        root.style.setProperty('--deep-burgundy', '#3a4f3b');
+        root.style.setProperty('--dusty-rose', '#8f9779');
+      } else {
+        root.style.removeProperty('--bg-light');
+        root.style.removeProperty('--bg-dark');
+        root.style.removeProperty('--text-main');
+        root.style.removeProperty('--text-muted');
+        root.style.removeProperty('--deep-burgundy');
+        root.style.removeProperty('--dusty-rose');
+      }
+    };
+    applyTheme();
+
     // ===============================================
     // ALL ORIGINAL JS FROM web-ultah BELOW
     // ===============================================
