@@ -26,8 +26,9 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState('');
 
-  // Form data — hanya 2 field teks
+  // Form data
   const [recipientName, setRecipientName] = useState('');
+  const [senderName, setSenderName] = useState('');
   const [birthDate, setBirthDate] = useState('');
 
   // Dynamic slots foto
@@ -106,7 +107,7 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
         ownerId: userId,
         slug,
         recipientName,
-        senderName: 'Someone Special',
+        senderName: senderName.trim() || 'Someone Special',
         birthDate: isoDate,
         pin,
 
@@ -152,7 +153,7 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
     }
   };
 
-  const canProceed = recipientName.trim() !== '' && birthDate !== '';
+  const canProceed = recipientName.trim() !== '' && senderName.trim() !== '' && birthDate !== '';
   const hasPhotos = photos.length > 0;
 
   return (
@@ -183,7 +184,7 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
           </div>
           <h2 className={styles.cardTitle}>Siapa yang Ulang Tahun?</h2>
           <p className={styles.cardDesc}>
-            Masukkan nama dan tanggal lahir orang yang spesial.
+            Masukkan nama penerima, nama Anda sebagai pengirim, dan tanggal lahirnya.
           </p>
 
           <div className={styles.field}>
@@ -195,6 +196,17 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
               placeholder="Contoh: Fiara"
               className={styles.input}
               autoFocus
+            />
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label}>Nama Pengirim (Anda)</label>
+            <input
+              type="text"
+              value={senderName}
+              onChange={e => setSenderName(e.target.value)}
+              placeholder="Contoh: Budi"
+              className={styles.input}
             />
           </div>
 
