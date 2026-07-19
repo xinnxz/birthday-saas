@@ -228,6 +228,10 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
     if (musicInputRef.current) musicInputRef.current.value = "";
   };
 
+  const capitalizeWords = (str: string) => {
+    return str.replace(/\b\w/g, (char) => char.toUpperCase());
+  };
+
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let val = e.target.value.replace(/\D/g, ''); // Hanya simpan angka
     if (val.length > 8) val = val.slice(0, 8); // Maksimal 8 digit (DDMMYYYY)
@@ -356,10 +360,23 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
   };
 
   const isStep1Valid = recipientName.trim().length > 0 && birthDate.length === 10;
-  const hasPhotos = photos.length > 0 || useIllustration;
+  const hasPhotos = photos.length > 0 || useIllustration || existingPhotos.length > 0;
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.target instanceof HTMLTextAreaElement) return;
+
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (step === 1 && isStep1Valid) setStep(2);
+      else if (step === 2 && hasPhotos) setStep(3);
+      else if (step === 3) setStep(4);
+      else if (step === 4) setStep(5);
+      else if (step === 5 && !loading) handleSubmit();
+    }
+  };
 
   return (
-    <div className={styles.wizardContainer}>
+    <div className={styles.wizardContainer} onKeyDown={handleKeyDown}>
       {/* Progress Header */}
       <div className={styles.progressHeader}>
         {Array.from({ length: totalSteps }).map((_, i) => (
@@ -434,7 +451,7 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
               type="text"
               placeholder="Contoh: Aisyah"
               value={recipientName}
-              onChange={e => setRecipientName(e.target.value)}
+              onChange={e => setRecipientName(capitalizeWords(e.target.value))}
               className={styles.input}
             />
           </div>
@@ -445,7 +462,7 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
               type="text"
               placeholder="Contoh: Budi (Opsional)"
               value={senderName}
-              onChange={e => setSenderName(e.target.value)}
+              onChange={e => setSenderName(capitalizeWords(e.target.value))}
               className={styles.input}
             />
           </div>
