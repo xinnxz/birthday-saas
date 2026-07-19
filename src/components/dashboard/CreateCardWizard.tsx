@@ -63,14 +63,9 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
     setPreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
-  // Generate PIN dari tanggal lahir (DDMMYYYY)
+  // Generate PIN dari tanggal lahir (DD/MM/YYYY -> DDMMYYYY)
   const generatePin = (dateStr: string): string => {
-    if (!dateStr) return '01012000';
-    const d = new Date(dateStr);
-    const dd = String(d.getDate()).padStart(2, '0');
-    const mm = String(d.getMonth() + 1).padStart(2, '0');
-    const yyyy = String(d.getFullYear());
-    return `${dd}${mm}${yyyy}`;
+    return dateStr.replace(/\//g, '');
   };
 
   const handleSubmit = async () => {
@@ -79,6 +74,15 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
     setUploadProgress(0);
 
     try {
+      // Pastikan format tanggal lengkap 10 karakter (DD/MM/YYYY)
+      if (birthDate.length !== 10) {
+        throw new Error('Format tanggal lahir harus DD/MM/YYYY lengkap.');
+      }
+
+      // Convert DD/MM/YYYY ke YYYY-MM-DD untuk disimpan
+      const [dd, mm, yyyy] = birthDate.split('/');
+      const isoDate = `${yyyy}-${mm}-${dd}`;
+
       // Upload photos ke Cloudinary
       const photoUrls: { url: string; caption: string }[] = [];
       const validPhotos = photos; // Semua sudah File
@@ -94,17 +98,13 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
       const slug = recipientName.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Math.floor(Math.random() * 10000);
       const pin = generatePin(birthDate);
 
-      // Format tanggal untuk display
-      const birthDateObj = new Date(birthDate);
-      const displayDate = birthDateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
-
       // Simpan ke Firestore dengan template bawaan web-ultah
       await addDoc(collection(db, 'cards'), {
         ownerId: userId,
         slug,
         recipientName,
         senderName: 'Someone Special',
-        birthDate,
+        birthDate: isoDate,
         pin,
 
         // Template bawaan dari web-ultah original
@@ -196,12 +196,23 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
           <div className={styles.field}>
             <label className={styles.label}>Tanggal Lahir</label>
             <input
-              type="date"
+              type="text"
               value={birthDate}
-              onChange={e => setBirthDate(e.target.value)}
+              onChange={(e) => {
+                let val = e.target.value.replace(/\D/g, ''); // hanya angka
+                if (val.length > 8) val = val.slice(0, 8);
+                if (val.length > 4) {
+                  val = `${val.slice(0, 2)}/${val.slice(2, 4)}/${val.slice(4)}`;
+                } else if (val.length > 2) {
+                  val = `${val.slice(0, 2)}/${val.slice(2)}`;
+                }
+                setBirthDate(val);
+              }}
+              placeholder="DD/MM/YYYY"
+              maxLength={10}
               className={styles.input}
             />
-            <span className={styles.hint}>Digunakan sebagai PIN akses kartu (format DDMMYYYY)</span>
+            <span className={styles.hint}>Contoh: 25/12/1998 (Digunakan sebagai PIN kartu)</span>
           </div>
 
           <div className={styles.actions}>
