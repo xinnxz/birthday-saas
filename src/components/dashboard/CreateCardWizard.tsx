@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { uploadToCloudinary } from '@/lib/cloudinary/upload';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
-import { AlertCircle, Cake, Camera, UploadCloud, X, Sparkles, ArrowRight, ArrowLeft, Music, PlayCircle, MessageSquareHeart, Map, ImagePlus } from 'lucide-react';
+import { AlertCircle, Cake, Camera, UploadCloud, CloudUpload, ShieldCheck, X, Sparkles, ArrowRight, ArrowLeft, Music, PlayCircle, MessageSquareHeart, Map, ImagePlus } from 'lucide-react';
 import styles from './wizard.module.css';
 
 const RELATIONSHIP_TEMPLATES = {
@@ -522,32 +522,53 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
           </p>
 
           <div 
-            className={styles.uploadArea} 
+            className={`${styles.uploadArea} ${isDraggingPhotos ? styles.dragging : ''}`}
             onClick={() => fileInputRef.current?.click()} 
             onDragOver={(e) => { e.preventDefault(); setIsDraggingPhotos(true); }}
             onDragLeave={() => setIsDraggingPhotos(false)}
             onDrop={handlePhotoDrop}
-            style={{
-              borderColor: isDraggingPhotos ? 'var(--brand-primary)' : (photos.length > 0 ? 'var(--brand-primary)' : ''),
-              backgroundColor: isDraggingPhotos ? 'rgba(212, 165, 165, 0.1)' : ''
-            }}
           >
-            <div className={styles.uploadIcon}>
-              <ImagePlus size={48} strokeWidth={1.5} color={photos.length > 0 ? 'var(--brand-primary)' : 'inherit'} />
+            <div className={styles.uploadIconWrapper}>
+              <CloudUpload size={32} />
             </div>
-            {photos.length > 0 ? (
-              <p style={{ color: 'var(--brand-primary)' }}>{photos.length} foto dipilih (Klik atau drag file untuk menambah)</p>
-            ) : (
-              <p>Klik atau Seret (Drag & Drop) file gambar ke sini</p>
+            <h3 className={styles.uploadTitle}>
+              {isDraggingPhotos ? "Lepaskan foto di sini" : "Pilih atau Lepaskan foto di sini"}
+            </h3>
+            <p className={styles.uploadSubtitle}>
+              Foto akan otomatis ditambahkan ke galeri kenangan
+            </p>
+            <div className={styles.uploadPill}>
+              JPG, PNG, WEBP • Maks. 10 MB
+            </div>
+
+            {photos.length > 0 && (
+              <div className={styles.filePreviewBadge} onClick={(e) => e.stopPropagation()}>
+                <img src={URL.createObjectURL(photos[0])} alt="preview" className={styles.filePreviewImg} />
+                <div className={styles.filePreviewInfo}>
+                  <span className={styles.filePreviewName}>{photos[0].name}</span>
+                  <span className={styles.filePreviewMeta}>
+                    {(photos[0].size / (1024 * 1024)).toFixed(1)} MB
+                  </span>
+                </div>
+                {photos.length > 1 && (
+                  <div className={styles.fileCountBadge}>{photos.length}</div>
+                )}
+              </div>
             )}
+            
             <input
               ref={fileInputRef}
               type="file"
-              accept="image/*"
+              accept="image/jpeg,image/png,image/webp"
               multiple
               onChange={handleMultiplePhotoSelect}
               style={{ display: 'none' }}
             />
+          </div>
+
+          <div className={styles.securityNote}>
+            <ShieldCheck size={14} />
+            <span>Foto Anda aman dan hanya dapat dilihat oleh penerima kartu</span>
           </div>
 
           {(existingPhotos.length > 0 || photos.length > 0) && (
@@ -640,34 +661,55 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
           </div>
 
           {presetMusic === 3 && (
-            <div 
-              className={styles.uploadArea} 
-              onClick={() => musicInputRef.current?.click()} 
-              onDragOver={(e) => { e.preventDefault(); setIsDraggingMusic(true); }}
-              onDragLeave={() => setIsDraggingMusic(false)}
-              onDrop={handleMusicDrop}
-              style={{ 
-                ...(musicFile ? { borderColor: 'var(--success)' } : {}), 
-                ...(isDraggingMusic ? { borderColor: 'var(--success)', backgroundColor: 'rgba(34, 197, 94, 0.1)' } : {}),
-                marginTop: '16px' 
-              }}
-            >
-              <div className={styles.uploadIcon}>
-                <UploadCloud size={48} strokeWidth={1.5} color={musicFile ? 'var(--success)' : 'inherit'} />
+            <>
+              <div 
+                className={`${styles.uploadArea} ${isDraggingMusic ? styles.dragging : ''}`}
+                onClick={() => musicInputRef.current?.click()} 
+                onDragOver={(e) => { e.preventDefault(); setIsDraggingMusic(true); }}
+                onDragLeave={() => setIsDraggingMusic(false)}
+                onDrop={handleMusicDrop}
+                style={{ marginTop: '16px' }}
+              >
+                <div className={styles.uploadIconWrapper}>
+                  <CloudUpload size={32} />
+                </div>
+                <h3 className={styles.uploadTitle}>
+                  {isDraggingMusic ? "Lepaskan musik di sini" : "Pilih atau Lepaskan musik di sini"}
+                </h3>
+                <p className={styles.uploadSubtitle}>
+                  Musik akan diputar otomatis saat kado dibuka
+                </p>
+                <div className={styles.uploadPill}>
+                  MP3, WAV • Maks. 15 MB
+                </div>
+
+                {musicFile && (
+                  <div className={styles.filePreviewBadge} onClick={(e) => e.stopPropagation()}>
+                    <div className={styles.filePreviewImg} style={{ background: 'var(--brand-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                      <Music size={16} color="white" />
+                    </div>
+                    <div className={styles.filePreviewInfo}>
+                      <span className={styles.filePreviewName}>{musicFile.name}</span>
+                      <span className={styles.filePreviewMeta}>
+                        {(musicFile.size / (1024 * 1024)).toFixed(1)} MB
+                      </span>
+                    </div>
+                  </div>
+                )}
+                
+                <input
+                  ref={musicInputRef}
+                  type="file"
+                  accept="audio/mp3,audio/wav,audio/mpeg"
+                  onChange={handleMusicSelect}
+                  style={{ display: 'none' }}
+                />
               </div>
-              {musicFile ? (
-                <p style={{ color: 'var(--success)' }}>{musicFile.name}</p>
-              ) : (
-                <p>Klik atau Seret (Drag & Drop) file audio/MP3 ke sini</p>
-              )}
-              <input
-                ref={musicInputRef}
-                type="file"
-                accept="audio/*"
-                onChange={handleMusicSelect}
-                style={{ display: 'none' }}
-              />
-            </div>
+              <div className={styles.securityNote}>
+                <ShieldCheck size={14} />
+                <span>File musik Anda aman dan hanya dapat didengar oleh penerima kartu</span>
+              </div>
+            </>
           )}
 
           {presetMusic === 3 && musicFile && (

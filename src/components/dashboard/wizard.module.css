@@ -216,35 +216,141 @@
 }
 .uploadArea {
   width: 100%;
-  padding: 40px 20px;
-  border: 1px dashed var(--neutral-300);
-  border-radius: 12px;
+  padding: 48px 20px;
+  border: 1.5px dashed rgba(212, 165, 165, 0.5);
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 12px;
   cursor: pointer;
-  background: var(--neutral-50);
+  background: rgba(212, 165, 165, 0.03);
   transition: all 0.3s ease;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
-.uploadArea:hover {
-  background: var(--neutral-100);
+.uploadArea:hover, .uploadArea.dragging {
+  background: rgba(212, 165, 165, 0.08);
   border-color: var(--brand-primary);
 }
 
-.uploadIcon {
-  font-size: 2.5rem;
-  opacity: 0.8;
+.uploadIconWrapper {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(212, 165, 165, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-primary);
+  margin-bottom: 4px;
+  position: relative;
 }
 
-.uploadArea p {
+.uploadIconWrapper::before {
+  content: "✦";
+  position: absolute;
+  color: rgba(212, 165, 165, 0.8);
+  top: 5px;
+  left: -20px;
+  font-size: 14px;
+}
+
+.uploadIconWrapper::after {
+  content: "✦";
+  position: absolute;
+  color: rgba(212, 165, 165, 0.8);
+  bottom: 10px;
+  right: -25px;
+  font-size: 18px;
+}
+
+.uploadTitle {
+  font-family: var(--font-heading);
+  font-size: 1.4rem;
+  color: var(--brand-primary);
+  margin: 0;
+  font-weight: 700;
+}
+
+.uploadSubtitle {
   color: var(--neutral-600);
-  font-weight: 500;
   font-size: 0.95rem;
   margin: 0;
+}
+
+.uploadPill {
+  background: rgba(212, 165, 165, 0.15);
+  padding: 6px 16px;
+  border-radius: 99px;
+  font-size: 0.75rem;
+  color: var(--neutral-700);
+  font-weight: 500;
+  margin-top: 4px;
+}
+
+.securityNote {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  color: var(--neutral-400);
+  font-size: 0.8rem;
+  margin-bottom: 24px;
+}
+
+.filePreviewBadge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  border: 1px solid var(--neutral-200);
+  padding: 8px 12px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  margin-top: 12px;
+}
+
+.filePreviewImg {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.filePreviewInfo {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.filePreviewName {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--neutral-800);
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.filePreviewMeta {
+  font-size: 0.7rem;
+  color: var(--neutral-500);
+}
+
+.fileCountBadge {
+  background: var(--info);
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: bold;
 }
 
 .dynamicPhotoGrid {
