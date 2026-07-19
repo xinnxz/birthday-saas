@@ -1,7 +1,7 @@
 /**
  * Utility for uploading files to Cloudinary directly from the browser (unsigned).
  */
-export async function uploadToCloudinary(file: File, resourceType: 'image' | 'video' = 'image'): Promise<string> {
+export async function uploadToCloudinary(file: File, resourceType: 'image' | 'video' | 'raw' | 'auto' = 'image'): Promise<string> {
   const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
   const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET;
 

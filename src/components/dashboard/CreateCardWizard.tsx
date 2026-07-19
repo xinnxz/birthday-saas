@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { uploadToCloudinary } from '@/lib/cloudinary/upload';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
-import { AlertCircle, Cake, Camera, UploadCloud, X, Sparkles, ArrowRight, ArrowLeft } from 'lucide-react';
+import { AlertCircle, Cake, Camera, UploadCloud, X, Sparkles, ArrowRight, ArrowLeft, Music, PlayCircle } from 'lucide-react';
 import styles from './wizard.module.css';
 
 /**
@@ -36,7 +36,11 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
   const [previews, setPreviews] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  const totalSteps = 2;
+  // Music upload
+  const [musicFile, setMusicFile] = useState<File | null>(null);
+  const musicInputRef = useRef<HTMLInputElement | null>(null);
+
+  const totalSteps = 3;
 
   // Handle multiple photo selection
   const handleMultiplePhotoSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -63,6 +67,19 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
   const removePhoto = (index: number) => {
     setPhotos((prev) => prev.filter((_, i) => i !== index));
     setPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const handleMusicSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      setMusicFile(e.target.files[0]);
+    }
+  };
+
+  const removeMusic = () => {
+    setMusicFile(null);
+    if (musicInputRef.current) {
+      musicInputRef.current.value = '';
+    }
   };
 
   // Generate PIN dari tanggal lahir (DD/MM/YYYY -> DDMMYY)
@@ -96,7 +113,15 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
         const url = await uploadToCloudinary(validPhotos[i], 'image');
         photoUrls.push({ url, caption: '' });
       }
-      setUploadProgress(100);
+      let customMusicUrl = "";
+      if (musicFile) {
+        // Assume photos take up 0-80% progress, music takes 80-100%
+        setUploadProgress(80);
+        customMusicUrl = await uploadToCloudinary(musicFile, 'auto');
+        setUploadProgress(100);
+      } else {
+        setUploadProgress(100);
+      }
 
       // Generate slug & PIN
       const slug = recipientName.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Math.floor(Math.random() * 10000);
@@ -135,7 +160,15 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
         ],
 
         photos: photoUrls,
-        music: { title: "Beautiful in White", artist: "Westlife", url: "" },
+        music: customMusicUrl ? {
+          title: "Lagu Pilihan Anda",
+          artist: senderName.trim() || "Seseorang",
+          url: customMusicUrl
+        } : { 
+          title: "Beautiful in White", 
+          artist: "Westlife", 
+          url: "" 
+        },
         theme: "romantic",
         isPublished: true,
         views: 0,
@@ -166,6 +199,10 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
         <div className={`${styles.stepLine} ${step > 1 ? styles.done : ''}`} />
         <div className={`${styles.stepDot} ${step >= 2 ? styles.active : ''}`}>
           <span>2</span>
+        </div>
+        <div className={`${styles.stepLine} ${step > 2 ? styles.done : ''}`} />
+        <div className={`${styles.stepDot} ${step >= 3 ? styles.active : ''}`}>
+          <span>3</span>
         </div>
       </div>
 
@@ -307,8 +344,75 @@ export default function CreateCardWizard({ userId }: { userId: string }) {
             </button>
             <button
               className={styles.btnPrimary}
+              onClick={() => setStep(3)}
+              disabled={!hasPhotos}
+            >
+              Lanjut — Pilih Lagu <ArrowRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ====== STEP 3: Upload Lagu (Opsional) ====== */}
+      {step === 3 && (
+        <div className={styles.card}>
+          <div className={styles.cardIcon}>
+            <Music size={32} strokeWidth={1.5} />
+          </div>
+          <h2 className={styles.cardTitle}>Lagu Spesial (Opsional)</h2>
+          <p className={styles.cardDesc}>
+            Unggah lagu kenangan Anda (MP3) untuk menjadi latar belakang kartu ini. Kosongkan jika ingin menggunakan lagu bawaan romantis.
+          </p>
+
+          <div className={styles.uploadArea} onClick={() => musicInputRef.current?.click()} style={musicFile ? { borderColor: 'var(--success)' } : {}}>
+            <div className={styles.uploadIcon}>
+              <PlayCircle size={32} strokeWidth={1.5} color={musicFile ? 'var(--success)' : 'inherit'} />
+            </div>
+            {musicFile ? (
+              <p style={{ color: 'var(--success)' }}>{musicFile.name}</p>
+            ) : (
+              <p>Klik untuk memilih file audio / MP3</p>
+            )}
+            
+            <input
+              ref={musicInputRef}
+              type="file"
+              accept="audio/*"
+              onChange={handleMusicSelect}
+              style={{ display: 'none' }}
+            />
+          </div>
+
+          {musicFile && (
+            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+              <button onClick={removeMusic} className={styles.btnSecondary} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+                <X size={14} style={{ marginRight: '4px' }} /> Hapus Lagu
+              </button>
+            </div>
+          )}
+
+          {/* Progress bar saat upload */}
+          {loading && (
+            <div className={styles.progressWrap}>
+              <div className={styles.progressBar}>
+                <div className={styles.progressFill} style={{ width: `${uploadProgress}%` }} />
+              </div>
+              <span className={styles.progressText}>Menyelesaikan pembuatan kartu... {uploadProgress}%</span>
+            </div>
+          )}
+
+          <div className={styles.actions}>
+            <button
+              className={styles.btnSecondary}
+              onClick={() => setStep(2)}
+              disabled={loading}
+            >
+              <ArrowLeft size={16} /> Kembali
+            </button>
+            <button
+              className={styles.btnPrimary}
               onClick={handleSubmit}
-              disabled={loading || !hasPhotos}
+              disabled={loading}
             >
               {loading ? 'Sedang Membuat...' : <><Sparkles size={16} /> Buat Kartu Sekarang!</>}
             </button>
