@@ -1,0 +1,27 @@
+.cardContainer {
+  min-height: 100vh;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  overflow-x: hidden;
+  transition: background-color 3s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.mainContent {
+  position: relative;
+  opacity: 1;
+  animation: fadeIn 3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.mainContent::before {
+  content: '';
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(212, 165, 165, 0.15), transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(232, 208, 165, 0.12), transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(249, 168, 182, 0.05), transparent 60%);
+  z-index: -1;
+  pointer-events: none;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

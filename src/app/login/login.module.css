@@ -1,0 +1,90 @@
+/* src/app/login/login.module.css */
+
+/*
+ * Container Utama Login
+ * Menggunakan flexbox untuk memposisikan kotak form login tepat di tengah layar
+ */
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* Latar gradien yang lembut untuk kesan mewah */
+  background: linear-gradient(135deg, #faf9f6 0%, #f0e6e6 100%);
+  padding: 2rem;
+  font-family: var(--font-body);
+}
+
+/*
+ * Kartu Login (Glassmorphism)
+ * Menggunakan backdrop-filter blur dipadu warna transparan untuk 
+ * menghasilkan efek kaca (glass effect) yang premium
+ */
+.card {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  padding: 4rem 3rem;
+  border-radius: 24px;
+  box-shadow: 0 20px 40px rgba(74, 37, 48, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  max-width: 450px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Tipografi untuk logo aplikasi di form login */
+.logo {
+  font-family: var(--font-script);
+  font-size: 3.5rem;
+  color: var(--brand-secondary);
+  margin-bottom: 1rem;
+}
+
+/* Judul Selamat Datang */
+.title {
+  font-family: var(--font-heading);
+  font-size: 2rem;
+  color: var(--brand-primary);
+  margin-bottom: 0.5rem;
+}
+
+/* Subjudul / Keterangan */
+.subtitle {
+  color: #666;
+  margin-bottom: 3rem;
+  line-height: 1.5;
+}
+
+/*
+ * Tombol Login Google
+ * Desain bersih dengan bayangan yang interaktif (hover effect)
+ */
+.googleButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  width: 100%;
+  padding: 1rem;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+}
+
+.googleButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+  border-color: #ccc;
+}
+
+/* Icon Google SVG */
+.googleIcon {
+  width: 24px;
+  height: 24px;
+}

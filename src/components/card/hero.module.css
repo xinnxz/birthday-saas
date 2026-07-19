@@ -1,0 +1,16 @@
+.hero {
+  min-height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; position: relative;
+}
+.chapter {
+  font-family: var(--font-body); font-size: 1rem; letter-spacing: 5px; text-transform: uppercase; color: var(--champagne-gold); margin-bottom: 20px; display: flex; align-items: center; gap: 15px;
+}
+.chapter::before, .chapter::after { content: ""; height: 1px; width: 40px; background: var(--champagne-gold); opacity: 0.5; }
+.title { font-family: var(--font-heading); font-weight: 300; line-height: 1.1; color: var(--deep-burgundy); margin-bottom: 20px; }
+.line1 { display: block; font-size: 2.2rem; font-family: var(--font-body); letter-spacing: 4px; text-transform: uppercase; margin-bottom: -15px; }
+.line2 { display: block; font-size: 7rem; margin: -20px 0; text-shadow: 0 10px 30px rgba(212, 165, 165, 0.3); font-family: var(--font-script); color: var(--dusty-rose); }
+.line3 { display: block; font-size: 2.5rem; font-style: italic; color: var(--text-muted); }
+.typewriter { margin-top: 30px; font-size: 1.1rem; letter-spacing: 2px; height: 30px; color: var(--text-main); }
+.cursor { animation: blink 1s step-end infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.scroll { position: absolute; bottom: 50px; color: var(--dusty-rose); font-family: var(--font-heading); font-style: italic; font-size: 1.2rem; animation: bounce 3s infinite; }
+@keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(15px); } }

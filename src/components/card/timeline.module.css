@@ -1,0 +1,23 @@
+.section { padding: 100px 20px; text-align: center; }
+.label { font-family: var(--font-script); color: var(--dusty-rose); font-size: 2.5rem; margin-bottom: 10px; }
+.title { font-family: var(--font-heading); font-size: 3.5rem; font-weight: 300; color: var(--deep-burgundy); margin-bottom: 40px; }
+.container { position: relative; max-width: 900px; margin: 0 auto; padding: 40px 0; }
+.line { position: absolute; top: 0; left: 50%; width: 1px; height: 100%; background: rgba(212, 165, 165, 0.4); transform: translateX(-50%); }
+.item { position: relative; width: 50%; padding: 20px 40px; display: flex; }
+.left { left: 0; justify-content: flex-end; }
+.right { left: 50%; justify-content: flex-start; }
+.item::before { content: ''; position: absolute; top: 50px; width: 10px; height: 10px; background: #f9a8b6; border-radius: 50%; box-shadow: 0 0 10px rgba(249, 168, 182, 0.8); z-index: 2; }
+.left::before { right: -5px; }
+.right::before { left: -5px; }
+.card { background: #4a2530; padding: 35px; border-radius: 16px; box-shadow: 0 15px 35px rgba(0,0,0,0.15); width: 100%; max-width: 380px; text-align: left; transition: transform 0.4s; }
+.card:hover { transform: translateY(-5px); }
+.icon { font-size: 1.5rem; margin-bottom: 15px; display: inline-block; }
+.date { color: #d4a5a5; font-family: var(--font-body); font-size: 0.75rem; font-weight: 500; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 2px; }
+.card h3 { color: #fff; font-family: var(--font-heading); font-size: 1.8rem; margin-bottom: 15px; }
+.card p { color: rgba(255, 255, 255, 0.6); font-size: 0.95rem; line-height: 1.6; }
+
+@media (max-width: 768px) {
+  .line { left: 30px; }
+  .item { width: 100%; left: 0 !important; justify-content: flex-start; padding: 20px 20px 20px 60px; }
+  .item::before { left: 25px; right: auto; }
+}

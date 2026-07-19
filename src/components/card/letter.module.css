@@ -1,0 +1,21 @@
+.section { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; perspective: 1000px; }
+.label { font-family: var(--font-script); color: var(--dusty-rose); font-size: 2.5rem; margin-bottom: 10px; }
+.title { font-family: var(--font-heading); font-size: 3.5rem; font-weight: 300; color: var(--deep-burgundy); margin-bottom: 15px; }
+.subtitle { color: var(--text-muted); font-size: 1rem; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 60px; }
+.wrapper { position: relative; width: 100%; max-width: 700px; margin: 50px auto 0; cursor: pointer; transition: margin 1.2s; }
+.envelope { position: relative; width: 100%; height: 350px; background: #a87e87; border-radius: 10px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); transition: transform 0.8s; transform-style: preserve-3d; }
+.wrapper:not(.isOpen) .envelope:hover { transform: translateY(-10px); box-shadow: 0 30px 60px rgba(0,0,0,0.2); }
+.flap { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #fdf8f5; clip-path: polygon(0 0, 50% 50%, 100% 0); transform-origin: top; transition: transform 1s; z-index: 3; }
+.pocket { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: #fcf5f1; clip-path: polygon(0 0, 0 100%, 100% 100%, 100% 0, 50% 50%); z-index: 2; }
+.wax { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 50px; height: 50px; background: var(--deep-burgundy); border-radius: 50%; z-index: 4; display: flex; justify-content: center; align-items: center; color: var(--champagne-gold); font-family: var(--font-script); font-size: 1.5rem; transition: opacity 0.5s; }
+.paper { position: absolute; top: 10px; left: 10px; right: 10px; height: 330px; background-color: #fdfaf6; border-radius: 8px; padding: 40px; border: 1px solid rgba(212, 165, 165, 0.4); transition: all 1.2s; overflow: hidden; z-index: 1; }
+.isOpen .flap { transform: rotateX(180deg); z-index: 0; }
+.isOpen .wax { opacity: 0; }
+.isOpen { margin-top: 280px; margin-bottom: 300px; }
+.isOpen .paper { height: 800px; transform: translateY(-250px); z-index: 4; box-shadow: 0 30px 60px rgba(0,0,0,0.15); overflow-y: auto; opacity: 1; }
+.content { opacity: 0; transition: opacity 1s 1s; }
+.isOpen .content { opacity: 1; }
+.date { text-align: right; font-family: var(--font-heading); font-style: italic; color: #8c6a73; margin-bottom: 30px; font-size: 1.1rem; }
+.body p { font-family: var(--font-heading); font-size: 1.6rem; line-height: 1.85; margin-bottom: 25px; color: #3b2229; }
+.signature { margin-top: 60px; text-align: right; }
+.sigName { font-family: var(--font-script); font-size: 3.5rem; color: var(--deep-burgundy); }

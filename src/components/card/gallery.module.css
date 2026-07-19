@@ -1,0 +1,15 @@
+.section { padding: 100px 20px; text-align: center; }
+.label { font-family: var(--font-script); color: var(--dusty-rose); font-size: 2.5rem; margin-bottom: 10px; }
+.title { font-family: var(--font-heading); font-size: 3.5rem; font-weight: 300; color: var(--deep-burgundy); margin-bottom: 40px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 50px; padding: 20px; }
+.polaroid { background: #fff; padding: 20px 20px 60px 20px; box-shadow: 0 15px 35px rgba(0,0,0,0.08); transition: all 0.6s; cursor: pointer; position: relative; filter: grayscale(20%); }
+.polaroid:nth-child(odd) { transform: rotate(-4deg) translateY(20px); }
+.polaroid:nth-child(even) { transform: rotate(4deg) translateY(-20px); }
+.polaroid:hover { transform: scale(1.05) rotate(0deg) !important; z-index: 10; filter: grayscale(0%); box-shadow: 0 30px 60px rgba(0,0,0,0.15); }
+.polaroid img { width: 100%; height: 300px; object-fit: cover; }
+.caption { position: absolute; bottom: 20px; left: 0; width: 100%; text-align: center; font-family: var(--font-script); font-size: 1.8rem; color: var(--deep-burgundy); }
+.lightbox { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(250, 245, 245, 0.9); backdrop-filter: blur(20px); z-index: 10000; display: flex; justify-content: center; align-items: center; }
+.lightbox img { max-width: 90%; max-height: 80vh; border: 15px solid #fff; border-bottom-width: 80px; box-shadow: 0 40px 80px rgba(0,0,0,0.2); animation: zoomIn 0.3s; }
+@keyframes zoomIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.close { position: absolute; top: 40px; right: 40px; background: none; border: none; font-size: 2rem; color: var(--text-muted); cursor: pointer; transition: transform 0.3s; }
+.close:hover { transform: scale(1.2) rotate(90deg); color: var(--deep-burgundy); }

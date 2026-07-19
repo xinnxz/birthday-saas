@@ -1,0 +1,30 @@
+.section { padding: 100px 20px; text-align: center; }
+.label { font-family: var(--font-script); color: var(--dusty-rose); font-size: 2.5rem; margin-bottom: 10px; }
+.title { font-family: var(--font-heading); font-size: 3.5rem; font-weight: 300; color: var(--deep-burgundy); margin-bottom: 40px; }
+.container { display: flex; justify-content: center; }
+.card { background: rgba(20, 22, 30, 0.85); backdrop-filter: blur(25px); border: 1px solid rgba(232, 208, 165, 0.15); padding: 40px; border-radius: 25px; box-shadow: 0 30px 60px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 50px; width: 100%; max-width: 650px; margin: 0 auto; }
+.left { position: relative; }
+.vinylWrapper { position: relative; width: 180px; height: 180px; filter: drop-shadow(0 15px 25px rgba(0,0,0,0.4)); }
+.vinyl { width: 100%; height: 100%; border-radius: 50%; background: #0a0a0a; border: 4px solid #1a1a1a; display: flex; justify-content: center; align-items: center; transition: transform 0.5s; position: relative; }
+.grooves { position: absolute; top: 5%; left: 5%; right: 5%; bottom: 5%; border-radius: 50%; border: 1px solid rgba(255,255,255,0.05); }
+.playing .vinyl { animation: spin 4s linear infinite; }
+@keyframes spin { 100% { transform: rotate(360deg); } }
+.center { width: 60px; height: 60px; border-radius: 50%; background: var(--dusty-rose); border: 2px solid var(--champagne-gold); z-index: 2; }
+.tonearm { position: absolute; top: -10px; right: -10px; width: 15px; height: 90px; background: linear-gradient(to right, #bda27e, #e8d0a5, #bda27e); transform-origin: top center; transform: rotate(-30deg); border-radius: 10px; z-index: 3; transition: transform 0.8s; }
+.playing .tonearm { transform: rotate(20deg); }
+.right { flex: 1; text-align: left; }
+.header { display: flex; justify-content: space-between; margin-bottom: 25px; }
+.songTitle { font-family: var(--font-heading); font-size: 1.8rem; color: #fff; margin-bottom: 5px; }
+.artist { color: var(--champagne-gold); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 2px; }
+.eq { display: flex; gap: 3px; align-items: flex-end; height: 20px; opacity: 0; }
+.playing .eq { opacity: 1; }
+.eq span { width: 4px; background: var(--dusty-rose); border-radius: 2px; animation: bounce 1s infinite alternate; }
+.eq span:nth-child(1) { height: 10px; animation-delay: 0s; }
+.eq span:nth-child(2) { height: 20px; animation-delay: 0.3s; }
+.eq span:nth-child(3) { height: 15px; animation-delay: 0.6s; }
+@keyframes bounce { 0% { height: 5px; } 100% { height: 20px; } }
+.progressContainer { margin-bottom: 25px; }
+.progressBar { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; position: relative; }
+.progressFill { height: 100%; background: var(--champagne-gold); border-radius: 2px; }
+.playBtn { background: transparent; color: var(--champagne-gold); border: 1px solid rgba(232, 208, 165, 0.3); width: 55px; height: 55px; border-radius: 50%; font-size: 1.5rem; cursor: pointer; transition: all 0.3s; }
+.playBtn:hover { background: rgba(232, 208, 165, 0.1); transform: scale(1.05); }

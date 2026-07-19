@@ -1,0 +1,283 @@
+/* src/app/page.module.css */
+
+/* 
+ * Container Utama
+ * Menjaga tinggi minimal satu layar penuh (100vh) dan memberikan warna latar off-white yang elegan
+ */
+.container {
+  min-height: 100vh;
+  background-color: #faf9f6; 
+  color: var(--brand-primary);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+}
+
+/* 
+ * Bagian Hero (Atas)
+ * Menggunakan gradien halus dan flexbox untuk menengahkan konten.
+ */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  overflow: hidden;
+  padding: 2rem;
+  background: linear-gradient(135deg, #faf9f6 0%, #f0e6e6 100%);
+}
+
+.heroContent {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+}
+
+/* Tipografi Judul */
+.heroTitle {
+  font-family: var(--font-heading);
+  font-size: 4rem;
+  line-height: 1.2;
+  margin-bottom: 1.5rem;
+  color: var(--brand-primary);
+}
+
+.heroTitle span {
+  font-family: var(--font-script);
+  font-size: 5rem;
+  color: var(--brand-secondary);
+  display: block;
+  margin-top: 0.5rem;
+}
+
+.heroSubtitle {
+  font-size: 1.25rem;
+  color: #666;
+  margin-bottom: 2.5rem;
+  line-height: 1.6;
+}
+
+/* 
+ * Tombol CTA (Call To Action)
+ * Menggunakan efek bayangan (shadow) dan transisi untuk interaksi premium
+ */
+.ctaButton {
+  display: inline-block;
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--brand-primary);
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 20px rgba(74, 37, 48, 0.2);
+}
+
+.ctaButton:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 25px rgba(74, 37, 48, 0.3);
+  background: var(--brand-secondary);
+}
+
+/* 
+ * Animasi Partikel
+ * Partikel mengambang untuk memberikan kesan magis dan mewah di latar belakang
+ */
+.particles {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.particle {
+  position: absolute;
+  background: var(--brand-accent);
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: float 10s infinite linear;
+}
+
+@keyframes float {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.6; }
+  90% { opacity: 0.6; }
+  100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+}
+
+/* 
+ * Fitur-Fitur
+ * Menggunakan CSS Grid untuk menampilkan kartu fitur secara rapi dan responsif
+ */
+.features {
+  padding: 6rem 2rem;
+  background-color: #fff;
+  text-align: center;
+}
+
+.sectionTitle {
+  font-family: var(--font-heading);
+  font-size: 2.5rem;
+  margin-bottom: 4rem;
+  color: var(--brand-primary);
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Desain Kartu Fitur */
+.featureCard {
+  background: #faf9f6;
+  padding: 2.5rem 2rem;
+  border-radius: 20px;
+  transition: transform 0.3s ease;
+  border: 1px solid rgba(232, 208, 165, 0.3);
+}
+
+.featureCard:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 15px 30px rgba(0,0,0,0.05);
+}
+
+.featureIcon {
+  font-size: 2.5rem;
+  color: var(--brand-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.featureTitle {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.featureDesc {
+  color: #666;
+  line-height: 1.6;
+}
+
+/* 
+ * Cara Kerja
+ * Menggunakan gradien halus dan nomor langkah yang besar
+ */
+.howItWorks {
+  padding: 6rem 2rem;
+  background: linear-gradient(180deg, #fff 0%, #faf9f6 100%);
+  text-align: center;
+}
+
+.stepsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 3rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.step {
+  position: relative;
+}
+
+.stepNumber {
+  font-family: var(--font-script);
+  font-size: 4rem;
+  color: var(--brand-accent);
+  opacity: 0.5;
+  position: absolute;
+  top: -2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+.stepContent {
+  position: relative;
+  z-index: 2;
+  padding-top: 2rem;
+}
+
+.stepTitle {
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+/* 
+ * Testimoni
+ * Menggunakan warna utama untuk kesan tegas dan "Glassmorphism" untuk kartu
+ */
+.testimonials {
+  padding: 6rem 2rem;
+  background-color: var(--brand-primary);
+  color: #fff;
+  text-align: center;
+}
+
+.testimonialGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Efek Glassmorphism: Latar transparan dengan blur */
+.testimonialCard {
+  background: rgba(255,255,255,0.05);
+  padding: 2.5rem;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.quote {
+  font-style: italic;
+  font-size: 1.1rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  color: rgba(255,255,255,0.9);
+}
+
+.author {
+  font-family: var(--font-heading);
+  color: var(--brand-accent);
+  font-size: 1.2rem;
+}
+
+/* 
+ * Footer
+ * Tampilan bawah yang minimalis
+ */
+.footer {
+  padding: 4rem 2rem 2rem;
+  background-color: #1a1a1a;
+  color: #fff;
+  text-align: center;
+}
+
+.footerLogo {
+  font-family: var(--font-script);
+  font-size: 2.5rem;
+  color: var(--brand-secondary);
+  margin-bottom: 1rem;
+}
+
+.footerCopyright {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
