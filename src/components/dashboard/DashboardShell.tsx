@@ -8,7 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
 import { useEffect, ReactNode, useState } from "react";
 import Link from "next/link";
-import { LayoutDashboard, Wand2, Image as ImageIcon, Settings, LogOut, Gift, Crown, Bell, LayoutTemplate, Menu, X } from "lucide-react";
+import { LayoutDashboard, Wand2, Image as ImageIcon, Settings, LogOut, Gift, Crown, Bell, LayoutTemplate, Menu, X, User } from "lucide-react";
 import styles from "./dashboard.module.css";
 
 /** Item navigasi sidebar */
@@ -17,7 +17,7 @@ const NAV_ITEMS = [
   { href: "/dashboard/create", label: "Buat Kartu", icon: <Wand2 size={18} /> },
   { href: "/dashboard/templates", label: "Template", icon: <LayoutTemplate size={18} /> },
   { href: "/dashboard/gallery", label: "Galeri Kenangan", icon: <ImageIcon size={18} /> },
-  { href: "/dashboard/settings", label: "Pengaturan", icon: <Settings size={18} /> },
+  { href: "/dashboard/settings", label: "Profil", icon: <User size={18} /> },
 ];
 
 export default function DashboardShell({ children }: { children: ReactNode }) {
@@ -59,14 +59,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
             <button className={styles.notifBtn}>
                <Bell size={20} />
              </button>
-            <button className={styles.mobileMenuBtn} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-              {mobileMenuOpen ? <X size={24} /> : (
-                userProfile?.photoURL ? (
-                  <img src={userProfile.photoURL} alt="Profil" className={styles.mobileAvatar} referrerPolicy="no-referrer" />
-                ) : (
-                  <div className={styles.mobileAvatarPlaceholder}>
-                    {userProfile?.displayName ? userProfile.displayName.charAt(0).toUpperCase() : "U"}
-                  </div>
+        </div>
                 )
               )}
             </button>
@@ -139,7 +132,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
 
       {/* ===== MOBILE BOTTOM NAV ===== */}
       <nav className={styles.mobileBottomNav}>
-        {NAV_ITEMS.slice(0, 4).map((item) => (
+        {NAV_ITEMS.map((item) => (
           <Link
             key={item.href}
             href={item.href}

@@ -3,12 +3,12 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import styles from "./settings.module.css";
-import { User, Lock, CreditCard, Camera, Save, Eye, EyeOff, Check } from "lucide-react";
+import { User, Lock, CreditCard, Camera, Save, Eye, EyeOff, Check, LogOut } from "lucide-react";
 
 type Tab = "profil" | "keamanan" | "billing";
 
 export default function SettingsPage() {
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>("profil");
   const [showPass, setShowPass] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -53,6 +53,13 @@ export default function SettingsPage() {
             onClick={() => setActiveTab("billing")}
           >
             <CreditCard size={18} /> Billing
+          </button>
+          <div className={styles.tabDivider} />
+          <button
+            className={`${styles.tabItem} ${styles.logoutBtn}`}
+            onClick={logout}
+          >
+            <LogOut size={18} /> Keluar (Logout)
           </button>
         </aside>
 

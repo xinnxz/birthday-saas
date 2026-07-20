@@ -1597,19 +1597,9 @@
 
   /* Desktop Sidebar Hidden by Default on Mobile, behaves as slide-in menu if open */
   .sidebar {
-    position: fixed;
-    top: 0;
-    left: -100%;
-    width: 280px;
-    height: 100vh;
-    background: #fff;
-    z-index: 1000;
-    transition: left 0.3s ease;
-    box-shadow: 4px 0 24px rgba(0,0,0,0.1);
+    display: none !important;
   }
-  .sidebarOpen {
-    left: 0;
-  }
+  
 
   /* Main Area */
   .main {
@@ -1656,6 +1646,7 @@
   }
   .mobileBottomNavItem {
     display: flex;
+    flex: 1;
     flex-direction: column;
     align-items: center;
     justify-content: center;

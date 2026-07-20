@@ -379,3 +379,17 @@
   .fullWidth { grid-column: span 1; }
   .container { padding: 20px; }
 }
+
+.tabDivider {
+  height: 1px;
+  background: var(--neutral-200);
+  margin: 8px 0;
+}
+.logoutBtn {
+  color: #dc2626 !important;
+  margin-top: auto;
+}
+.logoutBtn:hover {
+  background: #fef2f2 !important;
+  color: #b91c1c !important;
+}
