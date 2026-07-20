@@ -713,13 +713,18 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
       
       {/* MOBILE PROGRESS HEADER (Only visible on max-width: 768px) */}
       <div className={styles.mobileProgressHeader}>
-        <div className={styles.mobileProgressText}>
-          Langkah {step} dari {totalSteps}: {
-            step === 1 ? "Informasi Dasar" :
-            step === 2 ? "Pilih Musik" :
-            step === 3 ? "Kenangan" :
-            step === 4 ? "Pesan Spesial" : "Tema & Preview"
-          }
+        <div className={styles.mobileProgressTop}>
+          <div className={styles.mobileProgressText}>
+            {
+              step === 1 ? "Informasi Dasar" :
+              step === 2 ? "Pilih Musik" :
+              step === 3 ? "Kenangan" :
+              step === 4 ? "Pesan Spesial" : "Tema & Preview"
+            }
+          </div>
+          <div className={styles.mobileProgressBadge}>
+            {step} / {totalSteps}
+          </div>
         </div>
         <div className={styles.mobileProgressBarBg}>
           <div 
