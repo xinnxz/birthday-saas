@@ -88,3 +88,28 @@
   width: 24px;
   height: 24px;
 }
+
+/* ===== MOBILE RESPONSIVENESS ===== */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  .card {
+    padding: 3rem 1.5rem;
+    border-radius: 20px;
+  }
+  .logo {
+    font-size: 2.5rem;
+  }
+  .title {
+    font-size: 1.5rem;
+  }
+  .subtitle {
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+  }
+  .googleButton {
+    font-size: 1rem;
+    padding: 0.8rem;
+  }
+}
