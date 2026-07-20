@@ -8,9 +8,9 @@ import styles from "./templates.module.css";
 // Dummy data for templates
 const TEMPLATES = [
   { id: "t1", title: "Pinky Promise", category: "Romantis", isPremium: false, image: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=400&auto=format&fit=crop" },
-  { id: "t2", title: "Midnight Star", category: "Elegan", isPremium: true, image: "https://images.unsplash.com/photo-1533038590840-1c7987259f93?q=80&w=400&auto=format&fit=crop" },
+  { id: "t2", title: "Midnight Star", category: "Elegan", isPremium: true, image: "/images/templates/midnight_star.png" },
   { id: "t3", title: "Confetti Joy", category: "Lucu", isPremium: false, image: "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=400&auto=format&fit=crop" },
-  { id: "t4", title: "Minimalist White", category: "Minimalis", isPremium: false, image: "https://images.unsplash.com/photo-1581572978018-8f566412f9ea?q=80&w=400&auto=format&fit=crop" },
+  { id: "t4", title: "Minimalist White", category: "Minimalis", isPremium: false, image: "/images/templates/minimalist_white.png" },
   { id: "t5", title: "Dino Party", category: "Anak-anak", isPremium: true, image: "https://images.unsplash.com/photo-1530103043960-ef38714abb15?q=80&w=400&auto=format&fit=crop" },
   { id: "t6", title: "Golden Age", category: "Elegan", isPremium: true, image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=400&auto=format&fit=crop" },
 ];
