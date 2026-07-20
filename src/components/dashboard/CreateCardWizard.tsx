@@ -893,7 +893,7 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
                 </div>
               </div>
 
-              <div className={styles.formFieldPro}>
+              <div className={`${styles.formFieldPro} ${styles.indentedContent}`}>
                 <label>Tanggal Lahir Penerima (Digunakan sebagai PIN) <span style={{ color: 'red' }}>*</span></label>
                 <div className={styles.inputWrapperPro}>
                   <div className={styles.inputIconPro}><Calendar size={16} /></div>

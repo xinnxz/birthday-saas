@@ -3362,6 +3362,11 @@
   display: none;
 }
 
+
+.indentedContent {
+  margin-left: 36px;
+}
+
 /* ===== MOBILE RESPONSIVENESS ===== */
 @media (max-width: 768px) {
   .wizardContainer {
@@ -3636,5 +3641,9 @@
   .selectCardDesc {
     font-size: 0.65rem !important; /* Smaller text on mobile */
     line-height: 1.2 !important;
+  }
+
+  .indentedContent {
+    margin-left: 0 !important;
   }
 }
