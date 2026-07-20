@@ -3573,4 +3573,29 @@
     width: 100%;
     justify-content: center;
   }
+
+  /* 4. TEMPLATE GRIDS */
+  .templateCardGridNew, .themeCardGridNew {
+    grid-template-columns: 1fr 1fr !important; /* Force 2 columns */
+    margin-left: 0 !important;
+    gap: 12px;
+  }
+  
+  .selectCardPro {
+    padding: 16px 12px !important; /* Smaller padding on mobile */
+  }
+  
+  .selectCardIcon {
+    font-size: 1.5rem !important; /* Smaller icon on mobile */
+    margin-bottom: 4px !important;
+  }
+  
+  .selectCardTitle {
+    font-size: 0.75rem !important; /* Smaller text on mobile */
+  }
+  
+  .selectCardDesc {
+    font-size: 0.65rem !important; /* Smaller text on mobile */
+    line-height: 1.2 !important;
+  }
 }
