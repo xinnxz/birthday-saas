@@ -11,7 +11,7 @@
   margin-bottom: 28px;
   gap: 16px;
   flex-wrap: wrap;
-  padding-right: 260px; /* Avoid collision with fixed top header */
+  
 }
 
 .title {
@@ -385,4 +385,9 @@
 
 .saveBtn:hover {
   opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .container { padding: 16px; }
+  .title { font-size: 1.3rem; }
 }

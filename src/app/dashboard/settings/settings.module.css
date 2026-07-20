@@ -6,7 +6,6 @@
 
 .header {
   margin-bottom: 28px;
-  padding-right: 260px;
 }
 
 .title {
@@ -374,10 +373,63 @@
 }
 
 @media (max-width: 768px) {
-  .layout { grid-template-columns: 1fr; }
-  .formGrid { grid-template-columns: 1fr; }
-  .fullWidth { grid-column: span 1; }
-  .container { padding: 20px; }
+  .container {
+    padding: 16px;
+  }
+  .header {
+    margin-bottom: 20px;
+  }
+  .title {
+    font-size: 1.3rem;
+  }
+  .layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  /* Convert vertical sidebar to horizontal scrollable pill tabs */
+  .tabSidebar {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 8px;
+    padding: 10px;
+    position: static;
+    scrollbar-width: none;
+  }
+  .tabSidebar::-webkit-scrollbar {
+    display: none;
+  }
+  .tabItem {
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 9px 16px;
+    font-size: 0.85rem;
+    border-radius: 40px;
+    border: 1px solid #e5e7eb;
+  }
+  .tabItemActive {
+    border-color: #db2777;
+  }
+  .formGrid {
+    grid-template-columns: 1fr;
+  }
+  .fullWidth {
+    grid-column: span 1;
+  }
+  .card {
+    padding: 20px;
+    border-radius: 16px;
+  }
+  .avatarSection {
+    gap: 14px;
+  }
+  .formActions {
+    justify-content: stretch;
+  }
+  .saveBtn {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 .tabDivider {

@@ -15,7 +15,6 @@
 
 .header {
   margin-bottom: 24px;
-  padding-right: 260px; /* Avoid collision with top header buttons */
 }
 
 .headerTop {
@@ -143,5 +142,7 @@
 }
 @media (max-width: 768px) {
   .masonryGrid { columns: 2; }
-  .galleryContainer { padding: 20px; }
+  .galleryContainer { padding: 16px; }
+  .title { font-size: 1.3rem; }
+  .searchBox { max-width: 100%; }
 }
