@@ -1,0 +1,215 @@
+/* Transactions Page */
+.container {
+  padding: 32px;
+  max-width: 1100px;
+}
+
+.header {
+  margin-bottom: 28px;
+  padding-right: 260px; /* Avoid collision with fixed top header */
+}
+
+.title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin: 0 0 4px 0;
+}
+
+.subtitle {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+/* Summary Cards */
+.summaryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.summaryCard {
+  background: white;
+  border-radius: 16px;
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+}
+
+.summaryIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.summaryValue {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #1f2937;
+  line-height: 1;
+}
+
+.summaryLabel {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* Table */
+.tableCard {
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+  overflow: hidden;
+}
+
+.tableHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.tableCount {
+  font-size: 0.8rem;
+  color: #9ca3af;
+  font-weight: 500;
+  background: #f3f4f6;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead tr {
+  background: #fafafa;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.table thead th {
+  text-align: left;
+  padding: 12px 20px;
+  font-size: 0.78rem;
+  color: #9ca3af;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tableRow {
+  border-bottom: 1px solid #f9fafb;
+  transition: background 0.15s;
+}
+
+.tableRow:last-child { border-bottom: none; }
+.tableRow:hover { background: #fdf8f9; }
+
+.table td {
+  padding: 14px 20px;
+  vertical-align: middle;
+}
+
+.trxId {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #6b7280;
+  font-family: monospace;
+}
+
+.dateText {
+  font-size: 0.875rem;
+  color: #374151;
+  white-space: nowrap;
+}
+
+.descText {
+  font-size: 0.875rem;
+  color: #1f2937;
+  font-weight: 500;
+}
+
+.amountText {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.downloadBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f3f4f6;
+  color: #4b5563;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.downloadBtn:hover {
+  background: #4a2530;
+  color: white;
+}
+
+/* Empty State */
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 280px;
+  gap: 12px;
+  background: white;
+  border-radius: 20px;
+  border: 2px dashed #e5e7eb;
+  text-align: center;
+  padding: 40px;
+}
+
+.emptyState h3 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #374151;
+  margin: 0;
+}
+
+.emptyState p {
+  color: #9ca3af;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .summaryGrid { grid-template-columns: 1fr; }
+  .container { padding: 20px; }
+}

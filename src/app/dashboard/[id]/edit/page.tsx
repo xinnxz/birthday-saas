@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "@/lib/firebase";
@@ -9,7 +9,9 @@ import CreateCardWizard from "@/components/dashboard/CreateCardWizard";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
-export default function EditCardPage({ params }: { params: { id: string } }) {
+export default function EditCardPage({ params }: { params: Promise<{ id: string }> }) {
+  const unwrappedParams = use(params);
+  const cardId = unwrappedParams.id;
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
   const [initialData, setInitialData] = useState<any>(null);
@@ -26,7 +28,7 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
 
     async function fetchCard() {
       try {
-        const cardRef = doc(db, "cards", params.id);
+        const cardRef = doc(db, "cards", cardId);
         const cardSnap = await getDoc(cardRef);
 
         if (!cardSnap.exists()) {
@@ -54,7 +56,7 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
     }
 
     fetchCard();
-  }, [user, authLoading, params.id, router]);
+  }, [user, authLoading, cardId, router]);
 
   if (authLoading || loading) {
     return (
@@ -88,7 +90,7 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
 
   return (
     <div>
-      <div style={{ marginBottom: "24px" }}>
+      <div style={{ marginTop: "16px", marginBottom: "24px", padding: "0 24px" }}>
         <Link 
           href="/dashboard" 
           style={{ 
@@ -107,7 +109,7 @@ export default function EditCardPage({ params }: { params: { id: string } }) {
 
       <CreateCardWizard 
         userId={user?.uid} 
-        cardId={params.id} 
+        cardId={cardId} 
         initialData={initialData} 
       />
     </div>

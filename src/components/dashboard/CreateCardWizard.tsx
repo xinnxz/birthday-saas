@@ -5,12 +5,79 @@ import { useRouter } from 'next/navigation';
 import { uploadToCloudinary } from '@/lib/cloudinary/upload';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
-import { AlertCircle, Cake, Camera, UploadCloud, CloudUpload, ShieldCheck, X, Sparkles, ArrowRight, ArrowLeft, Music, PlayCircle, MessageSquareHeart, Map, ImagePlus, Play, Pause, SkipBack, SkipForward, Volume2, Search, MoreHorizontal, Check, Heart, Smile, Guitar, SlidersHorizontal, ChevronDown, CheckCircle2 } from 'lucide-react';
+import { AlertCircle, Cake, Camera, UploadCloud, CloudUpload, ShieldCheck, X, Sparkles, ArrowRight, ArrowLeft, Music, PlayCircle, MessageSquareHeart, Map, ImagePlus, Play, Pause, SkipBack, SkipForward, Volume2, Search, MoreHorizontal, Check, User, Calendar, Smile, Guitar, SlidersHorizontal, ChevronDown, CheckCircle2, Heart, Settings2, Folder, Layers, Image as ImageIcon, Video, FileJson, FileText, Filter, Plus, Info, Eye, Lightbulb, GripVertical, Mail, Bold, Italic, Underline, List, Edit2, Trash2, Tag, MessageSquare } from 'lucide-react';
+import { HiOutlineHeart, HiHeart, HiOutlineUsers, HiUsers, HiOutlineUser, HiUser, HiOutlineGift, HiGift } from 'react-icons/hi2';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+function SortableMessageItem({ id, val, onChange, onRemove, index }: any) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+  const style = { transform: CSS.Transform.toString(transform), transition, marginBottom: '16px', background: 'white' };
+  return (
+    <div ref={setNodeRef} style={style} className={styles.messageInputRow}>
+      <div {...attributes} {...listeners} style={{ cursor: 'grab', display: 'flex', alignItems: 'center' }}>
+        <GripVertical size={16} className={styles.dragHandle} />
+      </div>
+      <input type="text" className={styles.messageInput} value={val} onChange={e => onChange(id, e.target.value)} placeholder="Tulis pesan..." />
+      <div className={styles.messageCount}>{val.length}/80</div>
+      <Trash2 size={16} color="#ef4444" style={{ cursor: 'pointer', marginLeft: '8px' }} onClick={() => onRemove(id)} />
+    </div>
+  );
+}
+
+function SortableJourneyItem({ id, item, idx, onChange, onRemove }: any) {
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
+  const style: React.CSSProperties = { transform: CSS.Transform.toString(transform), transition, position: 'relative', marginBottom: '24px', background: 'white', border: '1px solid var(--neutral-200)', borderRadius: '12px', padding: '20px' };
+  
+  return (
+    <div ref={setNodeRef} style={style}>
+      <div style={{ position: 'absolute', left: '-29px', top: '24px', width: '24px', height: '24px', borderRadius: '50%', background: '#d48a97', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 600, border: '4px solid white', boxShadow: '0 0 0 1px var(--neutral-200)', zIndex: 2 }}>
+        {idx + 1}
+      </div>
+      <div style={{ display: 'flex', gap: '16px', marginBottom: '16px' }}>
+        <div style={{ flex: 1 }}>
+          <label className={styles.label}>Tahun / Waktu</label>
+          <div className={styles.messageInputRow} style={{ marginBottom: 0 }}>
+            <Calendar size={16} color="var(--neutral-400)" />
+            <input type="text" className={styles.messageInput} value={item.year} onChange={e => onChange(id, 'year', e.target.value)} placeholder="2023" />
+          </div>
+        </div>
+        <div style={{ flex: 2 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: '8px' }}>
+            <label className={styles.label} style={{ marginBottom: 0 }}>Judul Momen</label>
+            <div style={{ display: 'flex', gap: '8px', color: 'var(--neutral-400)' }}>
+              <div {...attributes} {...listeners} style={{ cursor: 'grab', display: 'flex', alignItems: 'center' }}>
+                <GripVertical size={16} />
+              </div>
+              <Trash2 size={16} color="#ef4444" style={{ cursor: 'pointer' }} onClick={() => onRemove(id)} />
+            </div>
+          </div>
+          <div className={styles.messageInputRow} style={{ marginBottom: 0 }}>
+            <Tag size={16} color="var(--neutral-400)" />
+            <input type="text" className={styles.messageInput} value={item.title} onChange={e => onChange(id, 'title', e.target.value)} placeholder="Pertama Bertemu" />
+            <div className={styles.messageCount}>{item.title?.length || 0}/60</div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <label className={styles.label}>Deskripsi Singkat</label>
+        <div className={styles.messageInputRow} style={{ padding: '0', alignItems: 'stretch' }}>
+          <textarea className={styles.messageInput} value={item.desc} onChange={e => onChange(id, 'desc', e.target.value)} placeholder="Ceritakan kisah momen ini..." style={{ minHeight: '80px', padding: '12px 16px', resize: 'none' }} />
+        </div>
+        <div style={{ textAlign: 'right', fontSize: '0.75rem', color: 'var(--neutral-400)' }}>
+          {item.desc?.length || 0}/300
+        </div>
+      </div>
+    </div>
+  );
+}
+
 import styles from './wizard.module.css';
 
 const RELATIONSHIP_TEMPLATES = {
   partner: {
-    name: "Romantic Partner 👩‍❤️‍👨",
+    name: "Romantic Partner",
     msg1: "You are my today and all of my tomorrows.",
     msg2: "Happy Birthday to the most beautiful soul.",
     msg3: "Thank you for being born.",
@@ -30,7 +97,7 @@ const RELATIONSHIP_TEMPLATES = {
     ]
   },
   bestfriend: {
-    name: "Best Friend 👯‍♀️",
+    name: "Best Friend",
     msg1: "To the partner in crime.",
     msg2: "Happy Birthday to my favorite human.",
     msg3: "Thanks for always having my back.",
@@ -50,7 +117,7 @@ const RELATIONSHIP_TEMPLATES = {
     ]
   },
   parent: {
-    name: "Parent 👩‍👦",
+    name: "Parent",
     msg1: "To the one who gave me everything.",
     msg2: "Happy Birthday to my guiding light.",
     msg3: "Thank you for your endless love.",
@@ -70,7 +137,7 @@ const RELATIONSHIP_TEMPLATES = {
     ]
   },
   general: {
-    name: "General 🎂",
+    name: "General",
     msg1: "Wishing you a wonderful day.",
     msg2: "Happy Birthday!",
     msg3: "May all your dreams come true.",
@@ -92,21 +159,35 @@ const RELATIONSHIP_TEMPLATES = {
 };
 
 const COLOR_THEMES = [
-  { id: 'romantic', name: 'Romantic (Pink/Cream)', color: '#d4a5a5' },
-  { id: 'elegant', name: 'Elegant (Dark Gold)', color: '#d4af37' },
-  { id: 'sage', name: 'Sage (Soft Green)', color: '#8f9779' },
+  { id: 'romantic', name: 'Romantic (Pink/Cream)', color: '#d4a5a5', desc: 'Hangat, lembut, penuh cinta', imageUrl: 'https://images.unsplash.com/photo-1527529482837-46948083023a?q=80&w=400&auto=format&fit=crop' },
+  { id: 'elegant', name: 'Elegant (Dark Gold)', color: '#d4af37', desc: 'Mewah, elegan, berkelas', imageUrl: 'https://images.unsplash.com/photo-1606214174585-fd7738f6d616?q=80&w=400&auto=format&fit=crop' },
+  { id: 'sage', name: 'Sage (Soft Green)', color: '#8f9779', desc: 'Natural, tenang, menenangkan', imageUrl: 'https://images.unsplash.com/photo-1515286591039-4467d3e62f5f?q=80&w=400&auto=format&fit=crop' },
 ];
 
 const PRESET_SONGS = [
   { id: 1, title: "Perfect", category: "Romantis", artist: "Ed Sheeran", duration: "4:23", url: "/music/perfect.mp3", coverUrl: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=400&auto=format&fit=crop" },
-  { id: 2, title: "A Thousand Years", category: "Romantis", artist: "Christina Perri", duration: "4:45", url: "/music/a-thousand-years.mp3", coverUrl: "https://images.unsplash.com/photo-1518895949257-761bf5e92159?q=80&w=400&auto=format&fit=crop" },
-  { id: 3, title: "Beautiful in White", category: "Romantis", artist: "Westlife", duration: "3:56", url: "/music/beautiful-in-white.mp3", coverUrl: "https://images.unsplash.com/photo-1532712938310-34cb3982ef74?q=80&w=400&auto=format&fit=crop" },
-  { id: 4, title: "Can't Help Falling in Love", category: "Romantis", artist: "Elvis Presley", duration: "3:01", url: "/music/cant-help-falling-in-love.mp3", coverUrl: "https://images.unsplash.com/photo-1469504512102-900f29606341?q=80&w=400&auto=format&fit=crop" },
-  { id: 5, title: "You Are The Reason", category: "Romantis", artist: "Calum Scott", duration: "3:24", url: "/music/you-are-the-reason.mp3", coverUrl: "https://images.unsplash.com/photo-1494972308805-463bc619d34e?q=80&w=400&auto=format&fit=crop" },
-  { id: 6, title: "Shape of My Heart", category: "Bahagia", artist: "Backstreet Boys", duration: "3:47", url: "/music/shape-of-my-heart.mp3", coverUrl: "https://images.unsplash.com/photo-1483808161634-29aa1b1151c0?q=80&w=400&auto=format&fit=crop" },
-  { id: 7, title: "Here Without You", category: "Akustik", artist: "3 Doors Down", duration: "3:58", url: "/music/here-without-you.mp3", coverUrl: "https://images.unsplash.com/photo-1510915361894-db8b60106cb1?q=80&w=400&auto=format&fit=crop" },
-  { id: 8, title: "Dandelions", category: "Romantis", artist: "Ruth B.", duration: "3:53", url: "/music/dandelions.mp3", coverUrl: "https://images.unsplash.com/photo-1490750967868-88cb4ec0927e?q=80&w=400&auto=format&fit=crop" },
-  { id: 9, title: "Summer Eyes", category: "Instrumental", artist: "OHYUL of LNGSHOT", duration: "3:16", url: "/music/summer-eyes.mp3", coverUrl: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=400&auto=format&fit=crop" },
+  { id: 2, title: "A Thousand Years", category: "Romantis", artist: "Christina Perri", duration: "4:45", url: "/music/a-thousand-years.mp3", coverUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?q=80&w=400&auto=format&fit=crop" },
+  { id: 3, title: "Beautiful in White", category: "Romantis", artist: "Westlife", duration: "3:56", url: "/music/beautiful-in-white.mp3", coverUrl: "https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?q=80&w=400&auto=format&fit=crop" },
+  { id: 4, title: "Can't Help Falling in Love", category: "Romantis", artist: "Elvis Presley", duration: "3:01", url: "/music/cant-help-falling-in-love.mp3", coverUrl: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=400&auto=format&fit=crop" },
+  { id: 5, title: "You Are The Reason", category: "Romantis", artist: "Calum Scott", duration: "3:24", url: "/music/you-are-the-reason.mp3", coverUrl: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=400&auto=format&fit=crop" },
+  { id: 6, title: "Shape of My Heart", category: "Bahagia", artist: "Backstreet Boys", duration: "3:47", url: "/music/shape-of-my-heart.mp3", coverUrl: "https://images.unsplash.com/photo-1507838153414-b4b713384a76?q=80&w=400&auto=format&fit=crop" },
+  { id: 7, title: "Here Without You", category: "Akustik", artist: "3 Doors Down", duration: "3:58", url: "/music/here-without-you.mp3", coverUrl: "https://images.unsplash.com/photo-1493225457124-a3a2e20b1fc6?q=80&w=400&auto=format&fit=crop" },
+  { id: 8, title: "Dandelions", category: "Romantis", artist: "Ruth B.", duration: "3:53", url: "/music/dandelions.mp3", coverUrl: "https://images.unsplash.com/photo-1487180144351-b8472da7d491?q=80&w=400&auto=format&fit=crop" },
+  { id: 9, title: "Summer Eyes", category: "Instrumental", artist: "OHYUL of LNGSHOT", duration: "3:16", url: "/music/summer-eyes.mp3", coverUrl: "https://images.unsplash.com/photo-1485030056468-3820ff9e6e90?q=80&w=400&auto=format&fit=crop" },
+];
+
+const GALLERY_DUMMY_DATA = [
+  { id: 1, type: "image", title: "Pantai Senja", date: "14 Feb 2023", url: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?q=80&w=400&auto=format&fit=crop", isFavorite: true },
+  { id: 2, type: "video", title: "Piknik di Taman", date: "22 Mar 2023", duration: "00:23", url: "https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?q=80&w=400&auto=format&fit=crop", isFavorite: false },
+  { id: 3, type: "image", title: "Malam Tahun Baru", date: "31 Des 2023", url: "https://images.unsplash.com/photo-1518621736915-f3b1c41bfd00?q=80&w=400&auto=format&fit=crop", isFavorite: false },
+  { id: 4, type: "image", title: "Pendakian Bersama", date: "10 Mei 2023", url: "https://images.unsplash.com/photo-1494774112140-5e3a89047b19?q=80&w=400&auto=format&fit=crop", isFavorite: true },
+  { id: 5, type: "image", title: "Dinner Anniversary", date: "21 Mei 2023", url: "https://images.unsplash.com/photo-1469334031218-e382a71b716b?q=80&w=400&auto=format&fit=crop", isFavorite: true },
+  { id: 6, type: "image", title: "Di Tepi Laut", date: "02 Jun 2023", url: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?q=80&w=400&auto=format&fit=crop", isFavorite: false },
+  { id: 7, type: "video", title: "Konser Favorit", date: "15 Jun 2023", duration: "00:42", url: "https://images.unsplash.com/photo-1459749411175-04bf5292ceea?q=80&w=400&auto=format&fit=crop", isFavorite: false },
+  { id: 8, type: "image", title: "City Light", date: "01 Jul 2023", url: "https://images.unsplash.com/photo-1519681393784-d120267933ba?q=80&w=400&auto=format&fit=crop", isFavorite: true },
+  { id: 9, type: "image", title: "Quality Time", date: "14 Jul 2023", url: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=400&auto=format&fit=crop", isFavorite: false },
+  { id: 10, type: "image", title: "Di Kafe Favorit", date: "25 Jul 2023", url: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?q=80&w=400&auto=format&fit=crop", isFavorite: false },
+  { id: 11, type: "image", title: "Photo Booth", date: "05 Aug 2023", url: "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=400&auto=format&fit=crop", isFavorite: false },
 ];
 
 const ILLUSTRATION_URLS = [
@@ -127,13 +208,16 @@ interface CreateCardWizardProps {
 export default function CreateCardWizard({ userId, cardId, initialData }: CreateCardWizardProps) {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [maxStepReached, setMaxStepReached] = useState(1);
+  const isEditMode = !!initialData;
+  const [maxStepReached, setMaxStepReached] = useState(isEditMode ? 5 : 1);
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState("");
 
   // Existing Photos (URL strings)
-  const [existingPhotos, setExistingPhotos] = useState<string[]>(initialData?.photos || []);
+  const [existingPhotos, setExistingPhotos] = useState<string[]>(
+    initialData?.photos ? initialData.photos.map((p: any) => p.url) : []
+  );
 
   // Form data
   const [recipientName, setRecipientName] = useState(initialData?.recipientName || "");
@@ -147,6 +231,20 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
   // Dynamic slots foto (new files)
   const [photos, setPhotos] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  
+  // Gallery Filters
+  const [galleryFilter, setGalleryFilter] = useState("Semua");
+  const [gallerySearch, setGallerySearch] = useState("");
+  const [galleryData, setGalleryData] = useState<any[]>(
+    initialData?.photos ? initialData.photos.map((p: any) => ({
+      id: Math.random().toString(),
+      type: 'image',
+      url: p.url,
+      size: 0,
+      name: 'Saved Photo',
+      isFavorite: false
+    })) : []
+  );
   
   // Drag and drop states
   const [isDraggingPhotos, setIsDraggingPhotos] = useState(false);
@@ -167,11 +265,17 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
   const [volume, setVolume] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("Semua");
+  const [visibleSongs, setVisibleSongs] = useState(5);
 
   // Messages & Letter (Filled by Template or initial data)
-  const [msg1, setMsg1] = useState(initialData?.romanticMessages?.[0] || RELATIONSHIP_TEMPLATES[template as keyof typeof RELATIONSHIP_TEMPLATES]?.msg1 || RELATIONSHIP_TEMPLATES.partner.msg1);
-  const [msg2, setMsg2] = useState(initialData?.romanticMessages?.[1] || RELATIONSHIP_TEMPLATES[template as keyof typeof RELATIONSHIP_TEMPLATES]?.msg2 || RELATIONSHIP_TEMPLATES.partner.msg2);
-  const [msg3, setMsg3] = useState(initialData?.romanticMessages?.[2] || RELATIONSHIP_TEMPLATES[template as keyof typeof RELATIONSHIP_TEMPLATES]?.msg3 || RELATIONSHIP_TEMPLATES.partner.msg3);
+  const [shortMessages, setShortMessages] = useState(() => {
+    const msgs = initialData?.romanticMessages || [
+      RELATIONSHIP_TEMPLATES[template as keyof typeof RELATIONSHIP_TEMPLATES]?.msg1 || RELATIONSHIP_TEMPLATES.partner.msg1,
+      RELATIONSHIP_TEMPLATES[template as keyof typeof RELATIONSHIP_TEMPLATES]?.msg2 || RELATIONSHIP_TEMPLATES.partner.msg2,
+      RELATIONSHIP_TEMPLATES[template as keyof typeof RELATIONSHIP_TEMPLATES]?.msg3 || RELATIONSHIP_TEMPLATES.partner.msg3
+    ];
+    return msgs.map((m: any, i: number) => ({ id: `msg-${i}-${Date.now()}`, val: m }));
+  });
   
   // Parse HTML letter content to plain text for textarea (naive parsing by replacing </p><p> with \n\n)
   let initialLetterText = RELATIONSHIP_TEMPLATES[template as keyof typeof RELATIONSHIP_TEMPLATES]?.letter || RELATIONSHIP_TEMPLATES.partner.letter;
@@ -181,7 +285,10 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
   const [letter, setLetter] = useState(initialLetterText);
   
   // Journey
-  const [journey, setJourney] = useState(initialData?.journey || RELATIONSHIP_TEMPLATES[template as keyof typeof RELATIONSHIP_TEMPLATES]?.journey || RELATIONSHIP_TEMPLATES.partner.journey);
+  const [journey, setJourney] = useState(() => {
+    const j = initialData?.journey || RELATIONSHIP_TEMPLATES[template as keyof typeof RELATIONSHIP_TEMPLATES]?.journey || RELATIONSHIP_TEMPLATES.partner.journey;
+    return j.map((item: any, i: number) => ({ ...item, id: item.id || `journey-${i}-${Date.now()}` }));
+  });
   const [bouquetMessages, setBouquetMessages] = useState(initialData?.bouquet || RELATIONSHIP_TEMPLATES[template as keyof typeof RELATIONSHIP_TEMPLATES]?.bouquetMessages || RELATIONSHIP_TEMPLATES.partner.bouquetMessages);
 
   // Initialize preview arrays if using existing photos
@@ -213,6 +320,33 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
       audioRef.current.volume = volume;
     }
   }, [volume]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleDragEndMessages = (event: any) => {
+    const { active, over } = event;
+    if (active.id !== over.id) {
+      setShortMessages((items: any) => {
+        const oldIndex = items.findIndex((i: any) => i.id === active.id);
+        const newIndex = items.findIndex((i: any) => i.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
+  const handleDragEndJourney = (event: any) => {
+    const { active, over } = event;
+    if (active.id !== over.id) {
+      setJourney((items: any) => {
+        const oldIndex = items.findIndex((i: any) => i.id === active.id);
+        const newIndex = items.findIndex((i: any) => i.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
 
   const handleAudioTimeUpdate = () => {
     if (audioRef.current) {
@@ -248,16 +382,34 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
     return matchesSearch && matchesCategory;
   });
 
+  const handlePrevMusic = () => {
+    const currentIndex = filteredSongs.findIndex(s => s.id === presetMusic);
+    if (currentIndex > 0) {
+      setPresetMusic(filteredSongs[currentIndex - 1].id);
+      setIsPlaying(true);
+    }
+  };
+
+  const handleNextMusic = () => {
+    const currentIndex = filteredSongs.findIndex(s => s.id === presetMusic);
+    if (currentIndex >= 0 && currentIndex < filteredSongs.length - 1) {
+      setPresetMusic(filteredSongs[currentIndex + 1].id);
+      setIsPlaying(true);
+    }
+  };
+
   const totalSteps = 5;
 
   const handleTemplateChange = (newTemplate: keyof typeof RELATIONSHIP_TEMPLATES) => {
     setTemplate(newTemplate);
     const t = RELATIONSHIP_TEMPLATES[newTemplate];
-    setMsg1(t.msg1);
-    setMsg2(t.msg2);
-    setMsg3(t.msg3);
+    setShortMessages([
+      { id: `msg-0-${Date.now()}`, val: t.msg1 },
+      { id: `msg-1-${Date.now()}`, val: t.msg2 },
+      { id: `msg-2-${Date.now()}`, val: t.msg3 }
+    ]);
     setLetter(t.letter);
-    setJourney(t.journey);
+    setJourney(t.journey.map((item, i) => ({ ...item, id: `journey-${i}-${Date.now()}` })));
     setBouquetMessages(t.bouquetMessages);
   };
 
@@ -274,6 +426,18 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
 
       const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
       setPreviews((prev) => [...prev, ...newPreviews]);
+      
+      const newGalleryItems = newFiles.map((file, i) => ({
+        id: Date.now() + i,
+        type: file.type.startsWith('video/') ? 'video' : 'image',
+        title: file.name,
+        date: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
+        url: URL.createObjectURL(file),
+        isFavorite: false,
+        file: file
+      }));
+      setGalleryData((prev) => [...prev, ...newGalleryItems]);
+      
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -284,11 +448,22 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
     e.preventDefault();
     setIsDraggingPhotos(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const newFiles = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+      const newFiles = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/') || f.type.startsWith('video/'));
       if (newFiles.length > 0) {
         setPhotos((prev) => [...prev, ...newFiles]);
         const newPreviews = newFiles.map((file) => URL.createObjectURL(file));
         setPreviews((prev) => [...prev, ...newPreviews]);
+        
+        const newGalleryItems = newFiles.map((file, i) => ({
+          id: Date.now() + i,
+          type: file.type.startsWith('video/') ? 'video' : 'image',
+          title: file.name,
+          date: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
+          url: URL.createObjectURL(file),
+          isFavorite: false,
+          file: file
+        }));
+        setGalleryData((prev) => [...prev, ...newGalleryItems]);
       }
     }
   };
@@ -395,11 +570,7 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
         recipientName,
         senderName: senderName.trim() || "Someone Special",
         birthDate: isoDate,
-        typewriterMessages: [
-          msg1.trim() || RELATIONSHIP_TEMPLATES.partner.msg1,
-          msg2.trim() || RELATIONSHIP_TEMPLATES.partner.msg2,
-          msg3.trim() || RELATIONSHIP_TEMPLATES.partner.msg3
-        ],
+        typewriterMessages: shortMessages.map((m: any) => m.val.trim()).filter((v: any) => v.length > 0),
         letterContent: letter.split("\n\n").map(p => `<p>${p}</p>`).join(""),
         bouquet: bouquetMessages,
         journey: mappedJourney,
@@ -466,23 +637,42 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
 
   return (
     <div className={styles.wizardContainer} onKeyDown={handleKeyDown}>
+      <audio 
+        ref={audioRef}
+        onTimeUpdate={handleAudioTimeUpdate}
+        onLoadedMetadata={handleAudioLoadedMetadata}
+        onEnded={() => setIsPlaying(false)}
+      />
       {/* Progress Header */}
       <div className={styles.progressHeader}>
-        {Array.from({ length: totalSteps }).map((_, i) => (
+        <div className={styles.progressLineContainer}>
+          <div className={styles.progressLineBg} />
+          <div 
+            className={styles.progressLineFill} 
+            style={{ width: `${((step - 1) / (totalSteps - 1)) * 100}%` }} 
+          />
+        </div>
+        {[
+          { id: 1, title: "Informasi Dasar" },
+          { id: 2, title: "Pilih Musik" },
+          { id: 3, title: "Galeri Kenangan" },
+          { id: 4, title: "Pesan" },
+          { id: 5, title: "Momen Spesial" }
+        ].map((stepObj, i) => (
           <div 
             key={i} 
             className={styles.stepIndicatorWrapper}
             onClick={() => {
               if (i + 1 <= maxStepReached) setStep(i + 1);
             }}
-            style={{ cursor: i + 1 <= maxStepReached ? 'pointer' : 'default' }}
+            style={{ cursor: i + 1 <= maxStepReached ? 'pointer' : 'not-allowed', opacity: i + 1 <= maxStepReached ? 1 : 0.6 }}
           >
-            <div className={`${styles.stepDot} ${step >= i + 1 ? styles.active : ""}`}>
+            <div className={`${styles.stepDot} ${step === i + 1 ? styles.active : (step > i + 1 ? styles.completed : "")}`}>
               {i + 1}
             </div>
-            {i < totalSteps - 1 && (
-              <div className={`${styles.stepLine} ${step > i + 1 ? styles.active : ""}`} />
-            )}
+            <div className={`${styles.stepLabel} ${step === i + 1 ? styles.active : (step > i + 1 ? styles.completed : "")}`}>
+              {stepObj.title}
+            </div>
           </div>
         ))}
       </div>
@@ -496,95 +686,219 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
 
       {/* ====== STEP 1: Basic Info & Template ====== */}
       {step === 1 && (
-        <div className={styles.card}>
-          <div className={styles.cardIcon}>
-            <Cake size={32} strokeWidth={1.5} />
-          </div>
-          <h2 className={styles.cardTitle}>Untuk Siapa Kartu Ini?</h2>
-          <p className={styles.cardDesc}>
-            Pilih template relasi untuk mengisi otomatis pesan spesial, lalu lengkapi data penerima.
-          </p>
+        <div className={styles.step1EnhancedCard}>
+          <div className={styles.step1MainContent}>
+            
+            {/* Header */}
+            <div className={styles.step1HeaderRow}>
+              <div className={styles.step1IconSquare}>
+                <Cake size={32} strokeWidth={1.5} />
+              </div>
+              <div className={styles.step1HeaderText}>
+                <h2>Untuk Siapa Kartu Ini?</h2>
+                <p>Mulai buat kartu ucapan spesial yang tak terlupakan ✨<br/><span style={{fontSize: '0.85rem'}}>Pilih template, tentukan tema, dan lengkapi informasi penerima agar kartu terasa lebih personal.</span></p>
+              </div>
+            </div>
 
-          <div className={styles.field}>
-            <label className={styles.label}>Template Relasi (Otomatis mengisi isi pesan)</label>
-            <div className={styles.musicGrid}>
-              {(Object.keys(RELATIONSHIP_TEMPLATES) as Array<keyof typeof RELATIONSHIP_TEMPLATES>).map(tKey => (
-                <div 
-                  key={tKey} 
-                  className={`${styles.musicCard} ${template === tKey ? styles.active : ""}`}
-                  onClick={() => handleTemplateChange(tKey)}
-                >
-                  <div className={styles.musicCardInfo}>
-                    <h4 style={{ fontSize: '1rem', textAlign: 'center' }}>{RELATIONSHIP_TEMPLATES[tKey].name}</h4>
+            {/* Template Selection */}
+            <div className={styles.numberedSection}>
+              <div className={styles.numberedSectionHeader}>
+                <div className={styles.sectionNumberBadge}>1</div>
+                <h3>Pilih Template Relasi</h3>
+              </div>
+              <p className={styles.numberedSectionDesc}>Kami akan menyesuaikan pesan dan desain sesuai hubungan Anda dengan penerima.</p>
+              <div className={styles.templateCardGridNew}>
+                {(Object.keys(RELATIONSHIP_TEMPLATES) as Array<keyof typeof RELATIONSHIP_TEMPLATES>).map(tKey => (
+                  <div 
+                    key={tKey} 
+                    className={`${styles.selectCardPro} ${template === tKey ? styles.active : ""}`}
+                    onClick={() => handleTemplateChange(tKey)}
+                  >
+                    <div className={styles.checkBadgePro}>
+                      <Check size={12} strokeWidth={3} />
+                    </div>
+                    <div className={styles.selectCardIcon} style={{ color: template === tKey ? '#d4a5a5' : 'var(--neutral-400)' }}>
+                      <div className={template === tKey ? styles.iconAnimated : ''}>
+                        {tKey === 'partner' ? (template === tKey ? <HiHeart size={32} /> : <HiOutlineHeart size={32} />) : 
+                         tKey === 'bestfriend' ? (template === tKey ? <HiUsers size={32} /> : <HiOutlineUsers size={32} />) : 
+                         tKey === 'parent' ? (template === tKey ? <HiUser size={32} /> : <HiOutlineUser size={32} />) : 
+                         (template === tKey ? <HiGift size={32} /> : <HiOutlineGift size={32} />)}
+                      </div>
+                    </div>
+                    <div className={styles.selectCardTitle}>{RELATIONSHIP_TEMPLATES[tKey].name}</div>
+                    <div className={styles.selectCardDesc}>
+                      {tKey === 'partner' ? 'Pasangan tercinta' : tKey === 'bestfriend' ? 'Sahabat terbaik' : tKey === 'parent' ? 'Orang tua tercinta' : 'Untuk siapa saja'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Theme Selection */}
+            <div className={styles.numberedSection}>
+              <div className={styles.numberedSectionHeader}>
+                <div className={styles.sectionNumberBadge}>2</div>
+                <h3>Pilih Tema Visual</h3>
+              </div>
+              <p className={styles.numberedSectionDesc}>Warna dan nuansa kartu akan menyesuaikan tema yang dipilih.</p>
+              <div className={styles.themeCardGridNew}>
+                {COLOR_THEMES.map((th) => (
+                  <div
+                    key={th.id}
+                    className={`${styles.selectCardPro} ${theme === th.id ? styles.active : ""}`}
+                    onClick={() => setTheme(th.id)}
+                    style={{ flexDirection: 'row', gap: '12px', justifyContent: 'flex-start', padding: '12px 16px', minHeight: 'auto' }}
+                  >
+                    <div className={styles.checkBadgePro}>
+                      <Check size={12} strokeWidth={3} />
+                    </div>
+                    <div 
+                      className={styles.themeThumbnailPro} 
+                      style={{ backgroundImage: `url(/images/theme-${th.id}.png)` }} 
+                    />
+                    <div style={{ textAlign: 'left' }}>
+                      <div className={styles.selectCardTitle} style={{ margin: 0 }}>{th.name}</div>
+                      <div className={styles.selectCardDesc} style={{ fontSize: '0.7rem' }}>{th.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Form Data */}
+            <div className={styles.numberedSection}>
+              <div className={styles.numberedSectionHeader}>
+                <div className={styles.sectionNumberBadge}>3</div>
+                <h3>Lengkapi Data Penerima</h3>
+              </div>
+              
+              <div className={styles.formGridTwoCol}>
+                <div className={styles.formFieldPro}>
+                  <label>Nama Penerima <span style={{ color: 'red' }}>*</span></label>
+                  <div className={styles.inputWrapperPro}>
+                    <div className={styles.inputIconPro}><User size={16} /></div>
+                    <input
+                      type="text"
+                      value={recipientName}
+                      onChange={e => setRecipientName(e.target.value)}
+                      onBlur={() => setRecipientName(recipientName.replace(/\b\w/g, (c: string) => c.toUpperCase()))}
+                      placeholder="Contoh: Aisyah"
+                      className={styles.inputPro}
+                    />
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-
-          <div className={styles.field}>
-            <label className={styles.label}>Pilih Tema Visual</label>
-            <div className={styles.musicGrid}>
-              {COLOR_THEMES.map(t => (
-                <div 
-                  key={t.id} 
-                  className={`${styles.musicCard} ${theme === t.id ? styles.active : ""}`}
-                  onClick={() => setTheme(t.id)}
-                  style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
-                >
-                  <div style={{ width: '24px', height: '24px', borderRadius: '50%', backgroundColor: t.color, border: '1px solid #ddd' }} />
-                  <div className={styles.musicCardInfo}>
-                    <h4>{t.name}</h4>
+                <div className={styles.formFieldPro}>
+                  <label>Nama Pengirim (Anda) <span style={{fontWeight: 400, color: '#888'}}>– Opsional</span></label>
+                  <div className={styles.inputWrapperPro}>
+                    <div className={styles.inputIconPro}><User size={16} /></div>
+                    <input
+                      type="text"
+                      value={senderName}
+                      onChange={e => setSenderName(e.target.value)}
+                      onBlur={() => setSenderName(senderName.replace(/\b\w/g, (c: string) => c.toUpperCase()))}
+                      placeholder="Contoh: Budi"
+                      className={styles.inputPro}
+                    />
                   </div>
                 </div>
-              ))}
+              </div>
+
+              <div className={styles.formFieldPro} style={{ marginLeft: '36px' }}>
+                <label>Tanggal Lahir Penerima (Digunakan sebagai PIN) <span style={{ color: 'red' }}>*</span></label>
+                <div className={styles.inputWrapperPro}>
+                  <div className={styles.inputIconPro}><Calendar size={16} /></div>
+                  <input
+                    type="text"
+                    value={birthDate}
+                    onChange={handleDateChange}
+                    placeholder="DD/MM/YYYY"
+                    className={styles.inputPro}
+                  />
+                  <div style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#aaa', fontSize: '0.8rem' }}>
+                    Contoh: 14/02/2000
+                  </div>
+                </div>
+                <div className={styles.inputHintPro}>
+                  <ShieldCheck size={14} color="#aaa" />
+                  Penerima harus memasukkan PIN ini untuk membuka kado.
+                </div>
+              </div>
             </div>
+
+            {/* Security Banner & Next Button */}
+            <div className={styles.securityBannerPro}>
+              <div className={styles.securityBannerLeft}>
+                <div className={styles.securityIconPro}>
+                  <ShieldCheck size={20} />
+                </div>
+                <div className={styles.securityTextPro}>
+                  <h4>Data Anda Aman</h4>
+                  <p>Semua informasi yang Anda masukkan bersifat pribadi dan hanya digunakan untuk pengalaman terbaik.</p>
+                </div>
+              </div>
+              <button
+                className={styles.btnDarkPro}
+                onClick={() => setStep(2)}
+                disabled={!isStep1Valid}
+              >
+                Lanjut <ArrowRight size={16} />
+              </button>
+            </div>
+
           </div>
 
-          <div className={styles.field}>
-            <label className={styles.label}>Nama Penerima</label>
-            <input
-              type="text"
-              placeholder="Contoh: Aisyah"
-              value={recipientName}
-              onChange={e => setRecipientName(e.target.value)}
-              onBlur={() => setRecipientName(capitalizeWords(recipientName))}
-              className={styles.input}
+          {/* Right Sidebar Preview */}
+          <div className={styles.previewSidebarPro}>
+            <div className={styles.previewHeaderPro}>
+              <div className={styles.previewTitlePro}>
+                <Sparkles size={16} color="#d4a5a5" /> Preview Tema
+              </div>
+              <div className={styles.liveBadgePro}>
+                <div className={styles.liveDot} /> Live Preview
+              </div>
+            </div>
+            
+            <img 
+              src={theme === 'romantic' ? "/images/theme-romantic.png" : theme === 'elegant' ? "/images/theme-elegant.png" : "/images/theme-sage.png"} 
+              alt="Preview" 
+              className={styles.previewImagePro} 
+              onError={(e) => {
+                // Fallback if local image doesn't exist
+                (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1530103862676-de8892bc952f?q=80&w=600&auto=format&fit=crop";
+              }}
             />
-          </div>
-
-          <div className={styles.field}>
-            <label className={styles.label}>Nama Pengirim (Anda)</label>
-            <input
-              type="text"
-              placeholder="Contoh: Budi (Opsional)"
-              value={senderName}
-              onChange={e => setSenderName(e.target.value)}
-              onBlur={() => setSenderName(capitalizeWords(senderName))}
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.field}>
-            <label className={styles.label}>Tanggal Lahir (Digunakan sebagai PIN)</label>
-            <input
-              type="text"
-              placeholder="DD/MM/YYYY (Contoh: 14/02/2000)"
-              value={birthDate}
-              onChange={handleDateChange}
-              className={styles.input}
-            />
-            <span className={styles.hint}>Penerima harus memasukkan PIN ini untuk membuka kado.</span>
-          </div>
-
-          <div className={styles.actions}>
-            <button
-              className={styles.btnPrimary}
-              onClick={() => setStep(2)}
-              disabled={!isStep1Valid}
-            >
-              Lanjut <ArrowRight size={16} />
-            </button>
+            
+            <div className={styles.previewInfoPro}>
+              <div className={styles.previewThemeTitlePro}>
+                {theme === 'romantic' ? "Romantic (Pink/Cream)" : theme === 'elegant' ? "Elegant (Dark Gold)" : "Sage (Soft Green)"}
+              </div>
+              <div className={styles.previewThemeDescPro}>
+                {theme === 'romantic' ? "Tema yang hangat, lembut, dan penuh kasih sayang. Cocok untuk pasangan tercinta." :
+                 theme === 'elegant' ? "Mewah, elegan, berkelas. Cocok untuk orang spesial di hari spesial." :
+                 "Natural, tenang, dan menenangkan. Memberikan nuansa kedamaian."}
+              </div>
+              <div className={styles.colorSwatchesPro}>
+                {theme === 'romantic' ? (
+                  <>
+                    <div className={styles.swatchPro} style={{ background: '#d4a5a5' }} />
+                    <div className={styles.swatchPro} style={{ background: '#c17e7e' }} />
+                    <div className={styles.swatchPro} style={{ background: '#fdf0f0' }} />
+                  </>
+                ) : theme === 'elegant' ? (
+                  <>
+                    <div className={styles.swatchPro} style={{ background: '#d4af37' }} />
+                    <div className={styles.swatchPro} style={{ background: '#aa8c2c' }} />
+                    <div className={styles.swatchPro} style={{ background: '#fffcf5' }} />
+                  </>
+                ) : (
+                  <>
+                    <div className={styles.swatchPro} style={{ background: '#8a9a86' }} />
+                    <div className={styles.swatchPro} style={{ background: '#6e7f6a' }} />
+                    <div className={styles.swatchPro} style={{ background: '#f4f7f4' }} />
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -592,9 +906,9 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
       {/* ====== STEP 2: Pilih Lagu ====== */}
       {step === 2 && (
         <div className={styles.card}>
-          <div className={styles.step1TwoCol}>
+          <div className={styles.musicGrid}>
             {/* Left Column: List */}
-            <div className={styles.step1LeftCol}>
+            <div className={styles.musicLeftCol}>
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', marginBottom: '8px' }}>
                 <div style={{ background: 'rgba(212, 165, 165, 0.2)', padding: '12px', borderRadius: '16px', color: 'var(--brand-primary)' }}>
                   <Music size={32} strokeWidth={1.5} />
@@ -622,6 +936,9 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
                     {cat}
                   </button>
                 ))}
+                <div className={styles.moodDropdown}>
+                  Mood <ChevronDown size={14} />
+                </div>
               </div>
 
               <div className={styles.musicSearchRow}>
@@ -635,26 +952,28 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-                <select className={styles.musicSortSelect}>
-                  <option value="newest">Terbaru</option>
-                  <option value="popular">Terpopuler</option>
-                </select>
+                <div className={styles.musicSortSelectWrapper}>
+                  <SlidersHorizontal size={14} className={styles.sortIcon} />
+                  <select className={styles.musicSortSelect}>
+                    <option value="newest">Terbaru</option>
+                    <option value="popular">Terpopuler</option>
+                  </select>
+                </div>
               </div>
 
               <table className={styles.musicTable}>
                 <thead>
                   <tr>
-                    <th>Lagu</th>
-                    <th>Artis</th>
-                    <th>Durasi</th>
-                    <th></th>
+                    <th>LAGU</th>
+                    <th>ARTIS</th>
+                    <th>DURASI</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredSongs.map((song) => (
+                  {filteredSongs.slice(0, visibleSongs).map((song) => (
                     <tr 
                       key={song.id} 
-                      className={`${styles.musicTableRow} ${presetMusic === song.id ? styles.active : ""}`}
+                      className={`${styles.musicTableRow} ${presetMusic === song.id ? styles.activeRow : ""}`}
                       onClick={() => {
                         setPresetMusic(song.id);
                         setMusicFile(null);
@@ -670,13 +989,12 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
                           <div className={styles.musicCover}>
                             <img src={song.coverUrl} alt={song.title} />
                             <div className={styles.musicCoverOverlay}>
-                              {presetMusic === song.id && isPlaying ? <Pause size={20} /> : <Play size={20} />}
+                              {presetMusic === song.id && isPlaying ? <Pause size={20} fill="white" /> : <Play size={20} fill="white" />}
                             </div>
                           </div>
                           <div>
                             <div className={styles.musicTitleWrap}>
                               <div className={styles.musicTitle}>{song.title}</div>
-                              <div className={styles.musicTag}>{song.category}</div>
                             </div>
                           </div>
                         </div>
@@ -687,43 +1005,49 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
                       <td className={styles.musicTableCell}>
                         <div className={styles.musicDuration}>{song.duration}</div>
                       </td>
-                      <td className={styles.musicTableCell} style={{ textAlign: 'right' }}>
-                        {presetMusic === song.id ? (
-                          <CheckCircle2 size={20} color="var(--brand-primary)" />
-                        ) : (
-                          <MoreHorizontal size={20} color="var(--neutral-400)" />
-                        )}
+                      <td className={styles.musicTableCellAction} style={{ textAlign: 'right' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '16px' }}>
+                          {presetMusic === song.id ? (
+                            <div className={styles.checkCirclePro}>
+                              <Check size={12} strokeWidth={3} />
+                            </div>
+                          ) : null}
+                          <MoreHorizontal size={20} color="var(--neutral-400)" style={{ cursor: 'pointer' }} />
+                        </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
               
-              <button 
-                className={styles.dashedBtn}
-                style={{ marginTop: '16px', color: 'var(--neutral-500)', borderColor: 'var(--neutral-200)' }}
-              >
-                Muat lebih banyak <ChevronDown size={16} />
-              </button>
+              {visibleSongs < filteredSongs.length && (
+                <button 
+                  className={styles.loadMoreBtn}
+                  onClick={() => setVisibleSongs(prev => prev + 5)}
+                >
+                  Muat lebih banyak <ChevronDown size={16} />
+                </button>
+              )}
 
               <div className={styles.actions} style={{ marginTop: '24px' }}>
                 <button className={styles.btnSecondary} onClick={() => setStep(1)}>
                   <ArrowLeft size={16} /> Kembali
                 </button>
                 <button className={styles.btnPrimary} onClick={() => setStep(3)}>
-                  Lanjut ke Galeri <ArrowRight size={16} />
+                  Lanjut <ArrowRight size={16} />
                 </button>
               </div>
             </div>
 
-            {/* Right Column: Player Sidebar */}
-            <div className={styles.step1RightCol}>
-              <div className={styles.playerSidebar}>
+            {/* Right Column: Player */}
+            <div className={styles.musicRightCol}>
+              <div className={styles.playerCard}>
                 <div className={styles.playerHeader}>
-                  <Music size={16} /> Pratinjau Lagu
+                  <Music size={18} />
+                  <h3>Pratinjau Lagu</h3>
                 </div>
                 
-                {(() => {
+                {presetMusic ? (() => {
                   const currentSong = PRESET_SONGS.find(s => s.id === presetMusic) || PRESET_SONGS[0];
                   return (
                     <>
@@ -793,9 +1117,11 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
                       </div>
                     </>
                   );
-                })()}
-
-                <div className={styles.uploadMusicBox}>
+                })() : (
+                  <div className={styles.playerEmpty}>
+                    <p>Pilih lagu untuk memutar pratinjau</p>
+                  </div>
+                )}                <div className={styles.uploadMusicBox}>
                   <div className={styles.uploadMusicLabel}>Atau unggah musik sendiri</div>
                   <div 
                     className={`${styles.uploadArea} ${isDraggingMusic ? styles.dragging : ''}`}
@@ -845,263 +1171,479 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
           </div>
         </div>
       )}
-{/* ====== STEP 3: Foto (Optional Skip) ====== */}
-      {step === 3 && (
-        <div className={styles.card}>
+  {/* ====== STEP 3: Foto (Optional Skip) ====== */}
+{step === 3 && (
+  <div className={styles.musicGrid}>
+    {/* Left Column: Gallery Main */}
+    <div className={styles.musicLeftCol}>
+      <div className={styles.galleryHeaderRow}>
+        <div className={styles.galleryHeaderTitle}>
           <div className={styles.cardIcon}>
-            <ImagePlus size={32} strokeWidth={1.5} />
+            <ImagePlus size={24} strokeWidth={2} />
           </div>
-          <h2 className={styles.cardTitle}>Galeri Kenangan (Foto)</h2>
-          <p className={styles.cardDesc}>
-            Unggah foto-foto spesial momen kebersamaan Anda (opsional). Jika dilewati, kami akan menggunakan ilustrasi estetik default.
-          </p>
-
-          <div 
-            className={`${styles.uploadArea} ${isDraggingPhotos ? styles.dragging : ''}`}
-            onClick={() => fileInputRef.current?.click()} 
-            onDragOver={(e) => { e.preventDefault(); setIsDraggingPhotos(true); }}
-            onDragLeave={() => setIsDraggingPhotos(false)}
-            onDrop={handlePhotoDrop}
-          >
-            <div className={styles.uploadIconWrapper}>
-              <CloudUpload size={32} />
-            </div>
-            <h3 className={styles.uploadTitle}>
-              {isDraggingPhotos ? "Lepaskan foto di sini" : "Pilih atau Lepaskan foto di sini"}
-            </h3>
-            <p className={styles.uploadSubtitle}>
-              Foto akan otomatis ditambahkan ke galeri kenangan
+          <div>
+            <h2 className={styles.cardTitle} style={{ marginBottom: 4 }}>Galeri Kenangan</h2>
+            <p className={styles.cardDesc} style={{ marginBottom: 0, fontSize: '0.85rem' }}>
+              Unggah dan kelola semua momen spesial dalam berbagai media. Susun urutan agar cerita perjalanan kalian lebih berkesan di dalam kartu.
             </p>
-            <div className={styles.uploadPill}>
-              JPG, PNG, WEBP • Maks. 10 MB
             </div>
-
-            {photos.length > 0 && (
-              <div className={styles.filePreviewBadge} onClick={(e) => e.stopPropagation()}>
-                <img src={URL.createObjectURL(photos[0])} alt="preview" className={styles.filePreviewImg} />
-                <div className={styles.filePreviewInfo}>
-                  <span className={styles.filePreviewName}>{photos[0].name}</span>
-                  <span className={styles.filePreviewMeta}>
-                    {(photos[0].size / (1024 * 1024)).toFixed(1)} MB
-                  </span>
-                </div>
-                {photos.length > 1 && (
-                  <div className={styles.fileCountBadge}>{photos.length}</div>
-                )}
-              </div>
-            )}
-            
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp"
-              multiple
-              onChange={handleMultiplePhotoSelect}
-              style={{ display: 'none' }}
-            />
-          </div>
-
-          <div className={styles.securityNote}>
-            <ShieldCheck size={14} />
-            <span>Foto Anda aman dan hanya dapat dilihat oleh penerima kartu</span>
-          </div>
-
-          {(existingPhotos.length > 0 || photos.length > 0) && (
-            <div className={styles.dynamicPhotoGrid}>
-              {/* Render existing photos */}
-              {existingPhotos.map((url, index) => (
-                <div key={`existing-${index}`} className={styles.dynamicPhotoSlot}>
-                  <img src={url} alt={`Existing Photo ${index + 1}`} className={styles.photoPreview} />
-                  <button
-                    className={styles.removeBtn}
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
-                      setExistingPhotos(prev => prev.filter((_, i) => i !== index));
-                      setPreviews(prev => prev.filter(p => p !== url));
-                    }}
-                  >
-                    <X size={14} />
-                  </button>
-                  <span style={{ position: 'absolute', bottom: 4, left: 4, fontSize: '0.65rem', background: 'rgba(0,0,0,0.5)', color: '#fff', padding: '2px 4px', borderRadius: 4 }}>Lama</span>
-                </div>
-              ))}
-              
-              {/* Render newly uploaded previews */}
-              {previews.filter(p => !existingPhotos.includes(p)).map((url, index) => (
-                <div key={`new-${index}`} className={styles.dynamicPhotoSlot}>
-                  <img src={url} alt={`New Photo ${index + 1}`} className={styles.photoPreview} />
-                  <button
-                    className={styles.removeBtn}
-                    onClick={(e) => { 
-                      e.stopPropagation(); 
-                      const newPhotos = [...photos];
-                      newPhotos.splice(index, 1);
-                      setPhotos(newPhotos);
-                      
-                      const urlToRemove = previews.filter(p => !existingPhotos.includes(p))[index];
-                      setPreviews(prev => prev.filter(p => p !== urlToRemove));
-                    }}
-                  >
-                    <X size={14} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-
-          <div className={styles.actions}>
-            <button
-              className={styles.btnSecondary}
-              onClick={() => setStep(2)}
-            >
-              <ArrowLeft size={16} /> Kembali
-            </button>
-            <button
-              className={styles.btnPrimary}
-              onClick={() => setStep(4)}
-            >
-              Lanjut <ArrowRight size={16} />
-            </button>
-          </div>
         </div>
-      )}
+        <button className={styles.btnSecondary} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+          <Settings2 size={16} /> Atur Urutan
+        </button>
+      </div>
 
-      {/* ====== STEP 4: Pesan & Surat ====== */}
-      {step === 4 && (
-        <div className={styles.card}>
-          <div className={styles.cardIcon}>
-            <MessageSquareHeart size={32} strokeWidth={1.5} />
-          </div>
-          <h2 className={styles.cardTitle}>Surat Cinta</h2>
-          <p className={styles.cardDesc}>
-            Pesan ini otomatis terisi dari template {RELATIONSHIP_TEMPLATES[template].name}. Jangan ragu untuk mengubahnya agar lebih personal!
-          </p>
-
-          <div className={styles.field}>
-            <label className={styles.label}>Pesan Singkat (Efek Mesin Tik)</label>
-            <input
-              type="text"
-              value={msg1}
-              onChange={e => setMsg1(e.target.value)}
-              className={styles.input}
-              style={{ marginBottom: '8px' }}
-            />
-            <input
-              type="text"
-              value={msg2}
-              onChange={e => setMsg2(e.target.value)}
-              className={styles.input}
-              style={{ marginBottom: '8px' }}
-            />
-            <input
-              type="text"
-              value={msg3}
-              onChange={e => setMsg3(e.target.value)}
-              className={styles.input}
-            />
-          </div>
-
-          <div className={styles.field}>
-            <label className={styles.label}>Surat Utama</label>
-            <textarea
-              value={letter}
-              onChange={e => setLetter(e.target.value)}
-              className={styles.textarea}
-              rows={6}
-            />
-          </div>
-
-          <div className={styles.actions}>
-            <button
-              className={styles.btnSecondary}
-              onClick={() => setStep(3)}
-            >
-              <ArrowLeft size={16} /> Kembali
-            </button>
-            <button
-              className={styles.btnPrimary}
-              onClick={() => setStep(5)}
-            >
-              Lanjut <ArrowRight size={16} />
-            </button>
-          </div>
+      <div 
+        className={`${styles.uploadArea} ${isDraggingPhotos ? styles.dragging : ''}`}
+        onClick={() => fileInputRef.current?.click()} 
+        onDragOver={(e) => { e.preventDefault(); setIsDraggingPhotos(true); }}
+        onDragLeave={() => setIsDraggingPhotos(false)}
+        onDrop={handlePhotoDrop}
+        style={{ padding: '40px', marginBottom: '24px', background: 'var(--brand-surface)' }}
+      >
+        <div className={styles.uploadIconWrapper} style={{ margin: '0 auto 16px auto', background: 'white' }}>
+          <CloudUpload size={24} color="#a85d68" />
         </div>
-      )}
+        <h3 className={styles.uploadTitle}>
+          Klik atau drag file media untuk mulai
+        </h3>
+        <p className={styles.uploadSubtitle}>
+          Foto atau Video (JPG, PNG, MP4, MOV) • Maks. 100 MB per file
+        </p>
+        <button className={styles.btnPrimary} style={{ margin: '16px auto 0 auto', padding: '8px 24px', fontSize: '0.85rem', background: '#4a2530' }} onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}>
+          <Folder size={16} /> Pilih File
+        </button>
+        <div style={{ fontSize: '0.75rem', color: 'var(--neutral-400)', marginTop: '8px' }}>Bisa pilih banyak file sekaligus</div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*,video/*"
+          multiple
+          onChange={handleMultiplePhotoSelect}
+          style={{ display: 'none' }}
+        />
+      </div>
 
-      {/* ====== STEP 5: Our Journey (Timeline) ====== */}
-      {step === 5 && (
-        <div className={styles.card}>
-          <div className={styles.cardIcon}>
-            <Map size={32} strokeWidth={1.5} />
-          </div>
-          <h2 className={styles.cardTitle}>Momen Spesial (Perjalanan)</h2>
-          <p className={styles.cardDesc}>
-            Edit momen-momen spesial ini sesuai dengan perjalanan nyata Anda, atau biarkan menggunakan teks default kami.
-          </p>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
-            {journey.map((item: any, idx: number) => (
-              <div key={idx} style={{ padding: '16px', border: '1px solid var(--neutral-200)', borderRadius: '12px', background: 'var(--neutral-50)' }}>
-                <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
-                  <div style={{ flex: '1' }}>
-                    <label className={styles.label}>Tahun / Waktu</label>
-                    <input
-                      type="text"
-                      value={item.year}
-                      onChange={e => updateJourney(idx, 'year', e.target.value)}
-                      className={styles.input}
-                      placeholder="Contoh: 2020"
-                    />
-                  </div>
-                  <div style={{ flex: '2' }}>
-                    <label className={styles.label}>Judul</label>
-                    <input
-                      type="text"
-                      value={item.title}
-                      onChange={e => updateJourney(idx, 'title', e.target.value)}
-                      className={styles.input}
-                      placeholder="Contoh: Pertama Bertemu"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <label className={styles.label}>Deskripsi Singkat</label>
-                  <input
-                    type="text"
-                    value={item.desc}
-                    onChange={e => updateJourney(idx, 'desc', e.target.value)}
-                    className={styles.input}
-                    placeholder="Cerita singkat tentang momen ini..."
-                  />
-                </div>
-              </div>
+      {galleryData.length > 0 && (
+        <div className={styles.galleryFilterRow}>
+          <div className={styles.galleryFilterPills}>
+            {["Semua", "Foto", "Video", "Favorit"].map(cat => (
+              <button 
+                key={cat}
+                className={`${styles.musicFilterBtn} ${galleryFilter === cat ? styles.active : ''}`}
+                onClick={() => setGalleryFilter(cat)}
+                style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+              >
+                {cat === "Semua" && <Layers size={14} />}
+                {cat === "Foto" && <ImageIcon size={14} />}
+                {cat === "Video" && <Video size={14} />}
+                {cat === "Favorit" && <Heart size={14} />}
+                {cat} 
+                <span className={styles.galleryCountBadge}>
+                  {cat === "Semua" ? galleryData.length : cat === "Foto" ? galleryData.filter(m => m.type === 'image').length : cat === "Video" ? galleryData.filter(m => m.type === 'video').length : galleryData.filter(m => m.isFavorite).length}
+                </span>
+              </button>
             ))}
           </div>
+        <div className={styles.gallerySearchRow}>
+          <div className={styles.musicSearchBox} style={{ width: '220px' }}>
+            <Search size={16} className={styles.searchIcon} />
+            <input 
+              type="text" 
+              placeholder="Cari media..." 
+              className={styles.musicSearchInput}
+              value={gallerySearch}
+              onChange={(e) => setGallerySearch(e.target.value)}
+              style={{ padding: '8px 12px 8px 36px', fontSize: '0.85rem' }}
+            />
+          </div>
+          <button className={styles.btnSecondary} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+            <Filter size={16} /> Filter
+          </button>
+          </div>
+        </div>
+      )}
 
-          {loading && (
-            <div className={styles.progressWrap}>
-              <div className={styles.progressBar}>
-                <div className={styles.progressFill} style={{ width: `${uploadProgress}%` }} />
+      {galleryData.length > 0 && (
+        <div className={styles.galleryGrid}>
+          {galleryData.map((media, index) => (
+          <div key={media.id} className={styles.galleryCard}>
+            <div className={styles.galleryThumb}>
+              <img src={media.url} alt={media.title} />
+              <div className={styles.galleryOverlayTop}>
+                <div className={styles.galleryHeart}>
+                  <Heart size={14} fill={media.isFavorite ? "currentColor" : "none"} color={media.isFavorite ? "#a85d68" : "white"} />
+                </div>
+                <div className={styles.galleryMore}>
+                  <MoreHorizontal size={14} color="white" />
+                </div>
               </div>
-              <span className={styles.progressText}>Sedang memproses kartu spesial Anda... {uploadProgress}%</span>
+              {media.type === "video" && media.duration && (
+                <div className={styles.galleryDuration}>
+                  <Play size={10} fill="currentColor" style={{ marginRight: 4 }} />
+                  {media.duration}
+                </div>
+              )}
+              <div className={styles.galleryOverlayBottom}>
+                <div className={styles.galleryIndex}>{index + 1}</div>
+                <div className={styles.galleryMeta}>
+                  <div className={styles.galleryItemTitle}>{media.title}</div>
+                  <div className={styles.galleryItemDate}>{media.date}</div>
+                </div>
+                <div className={styles.galleryTypeIcon}>
+                  {media.type === "video" ? <Video size={14} color="white" /> : <ImageIcon size={14} color="white" />}
+                </div>
+              </div>
             </div>
-          )}
+          </div>
+        ))}
+        
+        <div className={styles.galleryAddCard} onClick={() => fileInputRef.current?.click()}>
+          <div className={styles.galleryAddIcon}>
+            <Plus size={24} color="#a85d68" />
+          </div>
+          <span style={{ color: '#a85d68', fontSize: '0.85rem', fontWeight: 600 }}>Tambah Media</span>
+        </div>
+      </div>
+      )}
 
-          <div className={styles.actions}>
-            <button
-              className={styles.btnSecondary}
-              onClick={() => setStep(4)}
-              disabled={loading}
+      <div className={styles.galleryFooter}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8rem', color: 'var(--neutral-500)', marginBottom: '24px' }}>
+          <Info size={14} />
+          <span>Tips: Geser dan lepas untuk mengubah urutan media</span>
+        </div>
+        
+        <div className={styles.actions} style={{ borderTop: '1px solid var(--neutral-100)', paddingTop: '24px' }}>
+          <button className={styles.btnSecondary} onClick={() => setStep(2)}>
+            <ArrowLeft size={16} /> Kembali
+          </button>
+          <button className={styles.btnPrimary} onClick={() => setStep(4)}>
+            Lanjut <ArrowRight size={16} />
+          </button>
+        </div>
+      </div>
+    </div>
+
+    {/* Right Column: Sidebar */}
+    <div className={styles.musicRightCol}>
+      <div className={`${styles.sidebarCard} ${styles.magicCard}`}>
+        <div className={styles.magicHeader}>
+          <Sparkles size={20} color="#e6a8b5" />
+          <h3 className={styles.magicTitle}>Magic Arrange</h3>
+        </div>
+        <p className={styles.magicDesc}>
+          Biarkan sistem menyusun momen-momen terbaikmu menjadi cerita yang mengalir sempurna.
+        </p>
+        <button className={styles.magicBtn}>
+          <Sparkles size={14} /> Susun Otomatis
+        </button>
+      </div>
+
+      <div className={styles.sidebarCard}>
+        <div className={styles.sidebarHeader} style={{ marginBottom: 16 }}>
+          <div style={{ fontWeight: 600, color: 'var(--neutral-800)', fontSize: '0.9rem' }}>
+            Ringkasan Galeri
+          </div>
+        </div>
+        <div className={styles.statsTable}>
+          <div className={styles.statRow}>
+            <div className={styles.statLabel}><Layers size={14} color="#a85d68" /> Total Media</div>
+            <div className={styles.statValue}>{galleryData.length}</div>
+          </div>
+          <div className={styles.statRow}>
+            <div className={styles.statLabel}><ImageIcon size={14} color="#a85d68" /> Foto</div>
+            <div className={styles.statValue}>{galleryData.filter(m => m.type === 'image').length}</div>
+          </div>
+          <div className={styles.statRow}>
+            <div className={styles.statLabel}><Video size={14} color="#a85d68" /> Video</div>
+            <div className={styles.statValue}>{galleryData.filter(m => m.type === 'video').length}</div>
+          </div>
+          
+          <div className={styles.statDivider}></div>
+          
+          <div className={styles.statRow}>
+            <div className={styles.statLabel} style={{ fontWeight: 600 }}>Ukuran Total</div>
+            <div className={styles.statValue} style={{ fontWeight: 600, color: 'var(--neutral-800)' }}>48.6 MB</div>
+          </div>
+        </div>
+      </div>
+
+      <div className={styles.sidebarTipsCard}>
+        <div className={styles.tipsHeader}>
+          <Lightbulb size={16} color="#a85d68" />
+          Tips & Inspirasi
+        </div>
+        <p className={styles.tipsDesc}>
+          Pilih momen-momen terbaik yang menceritakan perjalanan kalian bersama. Kualitas lebih penting dari kuantitas.
+        </p>
+      </div>
+    </div>
+  </div>
+)}
+      {/* ====== STEP 4: Pesan & Surat ====== */}
+      {/* ====== STEP 4: Pesan & Surat ====== */}
+      {step === 4 && (
+        <div className={styles.musicGrid}>
+          {/* Left Column: Editor */}
+          <div className={styles.musicLeftCol}>
+            <div className={styles.messageHeader}>
+              <div className={styles.messageIcon}>
+                <MessageSquareHeart size={28} strokeWidth={2} />
+              </div>
+              <div>
+                <div className={styles.messageTitleRow}>
+                  <h2>Surat Cinta</h2>
+                  <span style={{ fontSize: '1.2rem' }}>💕</span>
+                </div>
+                <p className={styles.messageDesc}>
+                  Tulis pesan spesial yang akan otomatis dimasukkan ke dalam kartu.<br/>
+                  Gunakan kata-kata terbaik dari hati untuk membuatnya tersenyum.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ marginBottom: '32px' }}>
+              <div className={styles.messageSectionHeader}>
+                <div className={styles.messageLabel}>
+                  <Sparkles size={16} color="#a85d68" />
+                  Pesan Singkat (Efek Mesin Tik)
+                  <Info size={14} color="var(--neutral-400)" style={{ cursor: 'pointer' }} />
+                </div>
+                <button type="button" className={styles.btnSecondary} style={{ padding: '6px 12px', fontSize: '0.8rem', borderRadius: '20px' }} onClick={() => setShortMessages((prev: any) => [...prev, { id: `msg-${Date.now()}`, val: '' }])}>
+                  <Plus size={14} /> Tambah Baris
+                </button>
+              </div>
+
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndMessages}>
+                <SortableContext items={shortMessages.map((m: any) => m.id)} strategy={verticalListSortingStrategy}>
+                  {shortMessages.map((msg: any, i: number) => (
+                    <SortableMessageItem 
+                      key={msg.id}
+                      id={msg.id}
+                      val={msg.val}
+                      index={i}
+                      onChange={(id: any, val: any) => setShortMessages((prev: any) => prev.map((m: any) => m.id === id ? { ...m, val } : m))}
+                      onRemove={(id: any) => setShortMessages((prev: any) => prev.filter((m: any) => m.id !== id))}
+                    />
+                  ))}
+                </SortableContext>
+              </DndContext>
+            </div>
+
+            <div>
+              <div className={styles.messageSectionHeader}>
+                <div className={styles.messageLabel}>
+                  <Mail size={16} color="#a85d68" />
+                  Surat Utama
+                </div>
+              </div>
+              <p style={{ fontSize: '0.85rem', color: 'var(--neutral-500)', marginBottom: '16px', marginTop: '-8px' }}>
+                Tulis pesan lengkapmu di sini. Tidak ada batasan jumlah kata.
+              </p>
+
+              <div className={styles.editorContainer}>
+                <div className={styles.editorToolbar}>
+                  <button className={styles.toolbarBtn}><Bold size={16} /></button>
+                  <button className={styles.toolbarBtn}><Italic size={16} /></button>
+                  <button className={styles.toolbarBtn}><Underline size={16} /></button>
+                  <div style={{ width: '1px', height: '16px', background: 'var(--neutral-200)', margin: '0 8px' }}></div>
+                  <button className={styles.toolbarBtn}><List size={16} /></button>
+                  <button className={styles.toolbarBtn}><Smile size={16} /></button>
+                </div>
+                <textarea 
+                  className={styles.editorTextarea} 
+                  value={letter}
+                  onChange={e => setLetter(e.target.value)}
+                  placeholder="Tulis surat cintamu di sini..."
+                />
+                <div className={styles.editorFooter}>
+                  {letter.trim().split(/\s+/).filter(w => w.length > 0).length} kata
+                </div>
+              </div>
+            </div>
+            
+            <div className={styles.actions} style={{ marginTop: '32px', borderTop: '1px solid var(--neutral-100)', paddingTop: '24px' }}>
+              <button className={styles.btnSecondary} onClick={() => setStep(3)}>
+                <ArrowLeft size={16} /> Kembali
+              </button>
+              <button className={styles.btnPrimary} onClick={() => setStep(5)}>
+                Lanjut <ArrowRight size={16} />
+              </button>
+            </div>
+          </div>
+
+          {/* Right Column: Sidebar */}
+          <div className={styles.musicRightCol}>
+            <div className={styles.sidebarCard}>
+              <div className={styles.sidebarHeader}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600, color: 'var(--neutral-800)', fontSize: '0.9rem' }}>
+                  <Eye size={16} color="#a85d68" />
+                  Preview Kartu
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.75rem', color: 'var(--neutral-500)' }}>
+                  Preview Langsung
+                  <div style={{ width: 32, height: 18, background: '#a85d68', borderRadius: 10, position: 'relative' }}>
+                    <div style={{ width: 14, height: 14, background: 'white', borderRadius: '50%', position: 'absolute', right: 2, top: 2 }}></div>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginTop: 16 }}>
+                <img 
+                  src={theme === 'romantic' ? "/images/theme-romantic.png" : theme === 'elegant' ? "/images/theme-elegant.png" : "/images/theme-sage.png"} 
+                  alt="Birthday Preview" 
+                  className={styles.previewCardImg} 
+                  style={{ height: '400px', objectFit: 'cover' }}
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1530103862676-de8892bc952f?q=80&w=600&auto=format&fit=crop";
+                  }}
+                />
+              </div>
+            </div>
+
+            <div className={styles.sidebarTipsCard}>
+              <div className={styles.tipsHeader}>
+                <Lightbulb size={16} color="#a85d68" />
+                Tips
+              </div>
+              <p className={styles.tipsDesc}>
+                Gunakan kata-kata yang tulus dan personal untuk membuat kartu lebih bermakna.
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ====== STEP 5: Momen Spesial (Perjalanan) ====== */}
+      {step === 5 && (
+        <div className={styles.musicGrid}>
+          {/* Left Column */}
+          <div className={styles.musicLeftCol}>
+            <div className={styles.messageHeader}>
+              <div className={styles.messageIcon}>
+                <Map size={28} strokeWidth={2} />
+              </div>
+              <div>
+                <div className={styles.messageTitleRow}>
+                  <h2>Momen Spesial (Perjalanan)</h2>
+                  <span style={{ fontSize: '1.2rem' }}>✨</span>
+                </div>
+                <p className={styles.messageDesc}>
+                  Bagikan perjalanan berharga yang pernah kalian lewati bersama.<br/>
+                  Tambahkan momen sebanyak mungkin untuk membuat kartu lebih bermakna.
+                </p>
+              </div>
+            </div>
+
+            <div style={{ background: '#fdf2f4', padding: '12px 16px', borderRadius: '8px', color: '#a85d68', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '24px' }}>
+              <Lightbulb size={16} />
+              Tips: Isi minimal 1 momen spesial untuk membuat kartu lebih personal dan berkesan.
+              <button className={styles.btnPrimary} style={{ marginLeft: 'auto', padding: '6px 12px', fontSize: '0.8rem', background: '#4a2530' }} onClick={() => setJourney([...journey, { id: `journey-${Date.now()}`, year: '', title: '', desc: '' }])}>
+                <Plus size={14} /> Tambah Momen
+              </button>
+            </div>
+
+            <div style={{ position: 'relative', paddingLeft: '24px' }}>
+              <div style={{ position: 'absolute', left: '7px', top: '24px', bottom: '24px', width: '2px', background: 'var(--neutral-200)' }}></div>
+              
+              <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEndJourney}>
+                <SortableContext items={journey.map((j: any) => j.id)} strategy={verticalListSortingStrategy}>
+                  {journey.map((item: any, idx: number) => (
+                    <SortableJourneyItem 
+                      key={item.id} 
+                      id={item.id} 
+                      item={item} 
+                      idx={idx} 
+                      onChange={(id: any, field: any, val: any) => {
+                        setJourney((prev: any) => prev.map((j: any) => j.id === id ? { ...j, [field]: val } : j));
+                      }} 
+                      onRemove={(id: any) => {
+                        setJourney((prev: any) => prev.filter((j: any) => j.id !== id));
+                      }} 
+                    />
+                  ))}
+                </SortableContext>
+              </DndContext>
+            </div>
+
+            <button 
+              onClick={() => setJourney([...journey, { id: `journey-${Date.now()}`, year: '', title: '', desc: '' }])}
+              style={{ width: '100%', padding: '16px', background: '#fdf2f4', border: '1px dashed #e6a8b5', borderRadius: '12px', color: '#a85d68', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontSize: '0.9rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.2s' }}
             >
-              <ArrowLeft size={16} /> Kembali
+              <Plus size={16} /> Tambah Momen Lagi
             </button>
-            <button
-              className={styles.btnPrimary}
-              onClick={handleSubmit}
-              disabled={loading}
-            >
-              {loading ? 'Memproses...' : <><Sparkles size={16} /> {cardId ? 'Simpan Perubahan!' : 'Simpan & Buat Kartu!'}</>}
-            </button>
+            
+            {loading && (
+              <div className={styles.progressWrap} style={{ marginTop: '24px' }}>
+                <div className={styles.progressBar}>
+                  <div className={styles.progressFill} style={{ width: `${uploadProgress}%` }} />
+                </div>
+                <span className={styles.progressText}>Sedang memproses kartu spesial Anda... {uploadProgress}%</span>
+              </div>
+            )}
+
+            <div className={styles.actions} style={{ marginTop: '32px', borderTop: '1px solid var(--neutral-100)', paddingTop: '24px' }}>
+              <button className={styles.btnSecondary} onClick={() => setStep(4)} disabled={loading}>
+                <ArrowLeft size={16} /> Kembali
+              </button>
+              <button className={styles.btnPrimary} onClick={handleSubmit} disabled={loading}>
+                {loading ? 'Memproses...' : <><Sparkles size={16} /> Simpan & Selesai</>}
+              </button>
+            </div>
+          </div>
+
+          {/* Right Column: Sidebar */}
+          <div className={styles.musicRightCol}>
+            <div className={styles.sidebarCard}>
+              <div className={styles.sidebarHeader}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600, color: 'var(--neutral-800)', fontSize: '0.9rem' }}>
+                  <Eye size={16} color="#a85d68" />
+                  Preview Kartu
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.75rem', color: 'var(--neutral-500)' }}>
+                  Preview Langsung
+                  <div style={{ width: 32, height: 18, background: '#a85d68', borderRadius: 10, position: 'relative' }}>
+                    <div style={{ width: 14, height: 14, background: 'white', borderRadius: '50%', position: 'absolute', right: 2, top: 2 }}></div>
+                  </div>
+                </div>
+              </div>
+              <div style={{ marginTop: 16 }}>
+                <img src={COLOR_THEMES.find(t => t.id === theme)?.imageUrl || COLOR_THEMES[0].imageUrl} alt="Birthday Preview" className={styles.previewCardImg} style={{ height: '300px', objectFit: 'cover' }} />
+              </div>
+            </div>
+
+            <div className={styles.sidebarCard}>
+              <div className={styles.sidebarHeader} style={{ marginBottom: 16 }}>
+                <div style={{ fontWeight: 600, color: 'var(--neutral-800)', fontSize: '0.9rem' }}>
+                  Statistik Momen
+                </div>
+              </div>
+              <div className={styles.statsTable}>
+                <div className={styles.statRow}>
+                  <div className={styles.statLabel}><Layers size={14} color="#a85d68" /> Total Momen</div>
+                  <div className={styles.statValue}>{journey.length}</div>
+                </div>
+                <div className={styles.statRow}>
+                  <div className={styles.statLabel}><Calendar size={14} color="#a85d68" /> Tahun Tercatat</div>
+                  <div className={styles.statValue}>{new Set(journey.map((j:any) => j.year)).size}</div>
+                </div>
+                <div className={styles.statRow}>
+                  <div className={styles.statLabel}><MessageSquare size={14} color="#a85d68" /> Kata Total</div>
+                  <div className={styles.statValue}>
+                    {journey.reduce((acc: number, j: any) => acc + j.desc.trim().split(/\s+/).filter((w:string) => w.length>0).length, 0)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className={styles.sidebarTipsCard}>
+              <div className={styles.tipsHeader}>
+                <Lightbulb size={16} color="#a85d68" />
+                Tips & Inspirasi
+              </div>
+              <p className={styles.tipsDesc}>
+                Ceritakan momen yang paling berkesan, lucu, romantis, atau bahkan sederhana. Semua berarti!
+              </p>
+            </div>
           </div>
         </div>
       )}
