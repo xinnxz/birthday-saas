@@ -888,7 +888,7 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
                 </div>
               </div>
 
-              <div className={styles.formFieldPro} style={{ marginLeft: '36px' }}>
+              <div className={styles.formFieldPro}>
                 <label>Tanggal Lahir Penerima (Digunakan sebagai PIN) <span style={{ color: 'red' }}>*</span></label>
                 <div className={styles.inputWrapperPro}>
                   <div className={styles.inputIconPro}><Calendar size={16} /></div>

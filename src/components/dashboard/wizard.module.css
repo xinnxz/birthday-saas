@@ -3495,4 +3495,82 @@
     order: 2; /* Move sidebar below main content */
     margin-top: 24px;
   }
+
+  /* Floating Header */
+  .mobileProgressHeader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    z-index: 1000;
+    padding: 12px 16px 8px 16px !important;
+    margin-bottom: 0 !important;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+  }
+  
+  .wizardContainer {
+    padding-top: 80px !important; /* Make room for floating header */
+  }
+
+  /* Symmetric Professional Forms */
+  .formGridTwoCol {
+    grid-template-columns: 1fr !important;
+    margin-left: 0 !important;
+    gap: 20px;
+  }
+  
+  /* The date input has inline margin-left: 36px in JSX, let's override any wrapper */
+  .formFieldPro {
+    margin-left: 0 !important;
+  }
+
+  /* Compact Relation Templates */
+  .templateGridPro {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12px;
+  }
+  .templateCardPro {
+    padding: 16px 12px;
+  }
+  .templateIconWrap {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 12px;
+  }
+  .templateIconWrap svg {
+    width: 20px;
+    height: 20px;
+  }
+  .templateName {
+    font-size: 0.85rem;
+  }
+  .templateDesc {
+    font-size: 0.7rem;
+    display: none; /* Hide description on mobile for cleaner look */
+  }
+
+  /* Fix Button Overlapping in Security Banner */
+  .securityBannerPro {
+    flex-direction: column;
+    align-items: stretch;
+    text-align: center;
+    gap: 16px;
+    padding: 24px 20px;
+  }
+  .securityBannerLeft {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  .securityIconPro {
+    margin: 0 auto;
+  }
+  .btnDarkPro {
+    width: 100%;
+    justify-content: center;
+  }
 }
