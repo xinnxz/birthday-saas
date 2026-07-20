@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { uploadToCloudinary } from '@/lib/cloudinary/upload';
 import { db } from '@/lib/firebase';
 import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
-import { AlertCircle, Cake, Camera, UploadCloud, CloudUpload, ShieldCheck, X, Sparkles, ArrowRight, ArrowLeft, Music, PlayCircle, MessageSquareHeart, Map, ImagePlus } from 'lucide-react';
+import { AlertCircle, Cake, Camera, UploadCloud, CloudUpload, ShieldCheck, X, Sparkles, ArrowRight, ArrowLeft, Music, PlayCircle, MessageSquareHeart, Map, ImagePlus, Play, Pause, SkipBack, SkipForward, Volume2, Search, MoreHorizontal, Check, Heart, Smile, Guitar, SlidersHorizontal, ChevronDown, CheckCircle2 } from 'lucide-react';
 import styles from './wizard.module.css';
 
 const RELATIONSHIP_TEMPLATES = {
@@ -98,10 +98,12 @@ const COLOR_THEMES = [
 ];
 
 const PRESET_SONGS = [
-  { id: 0, title: "Beautiful in White", artist: "Westlife", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" },
-  { id: 1, title: "Perfect", artist: "Ed Sheeran", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" },
-  { id: 2, title: "A Thousand Years", artist: "Christina Perri", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3" },
-  { id: 3, title: "Custom Upload...", artist: "Format MP3/WAV", url: "custom" }
+  { id: 0, title: "Perfect", artist: "Ed Sheeran", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3", category: "Romantis", duration: "4:23", coverUrl: "https://images.unsplash.com/photo-1614613535308-eb5fbd3d2c17?q=80&w=150&auto=format&fit=crop" },
+  { id: 1, title: "A Thousand Years", artist: "Christina Perri", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3", category: "Romantis", duration: "4:45", coverUrl: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=150&auto=format&fit=crop" },
+  { id: 2, title: "Beautiful in White", artist: "Westlife", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3", category: "Romantis", duration: "3:56", coverUrl: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=150&auto=format&fit=crop" },
+  { id: 3, title: "Can't Help Falling in Love", artist: "Elvis Presley", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3", category: "Romantis", duration: "3:01", coverUrl: "https://images.unsplash.com/photo-1493225457124-a1a2a5f56468?q=80&w=150&auto=format&fit=crop" },
+  { id: 4, title: "You Are The Reason", artist: "Calum Scott", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3", category: "Romantis", duration: "3:24", coverUrl: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=150&auto=format&fit=crop" },
+  { id: 5, title: "Here With You", artist: "Dido", url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3", category: "Akustik", duration: "4:13", coverUrl: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?q=80&w=150&auto=format&fit=crop" },
 ];
 
 const ILLUSTRATION_URLS = [
@@ -153,6 +155,15 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
   const [presetMusic, setPresetMusic] = useState<number>(0);
   const musicInputRef = useRef<HTMLInputElement | null>(null);
 
+  // Audio Player states
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState("Semua");
+
   // Messages & Letter (Filled by Template or initial data)
   const [msg1, setMsg1] = useState(initialData?.romanticMessages?.[0] || RELATIONSHIP_TEMPLATES[template as keyof typeof RELATIONSHIP_TEMPLATES]?.msg1 || RELATIONSHIP_TEMPLATES.partner.msg1);
   const [msg2, setMsg2] = useState(initialData?.romanticMessages?.[1] || RELATIONSHIP_TEMPLATES[template as keyof typeof RELATIONSHIP_TEMPLATES]?.msg2 || RELATIONSHIP_TEMPLATES.partner.msg2);
@@ -175,6 +186,57 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
       setPreviews([...existingPhotos]);
     }
   }, [existingPhotos]);
+
+  // Audio player effect
+  useEffect(() => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.play().catch(e => console.log("Audio play failed", e));
+      } else {
+        audioRef.current.pause();
+      }
+    }
+  }, [isPlaying, presetMusic]);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
+
+  const handleAudioTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+    }
+  };
+
+  const handleAudioLoadedMetadata = () => {
+    if (audioRef.current) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = Number(e.target.value);
+    if (audioRef.current) {
+      audioRef.current.currentTime = time;
+      setCurrentTime(time);
+    }
+  };
+
+  const formatTime = (time: number) => {
+    if (isNaN(time)) return "0:00";
+    const mins = Math.floor(time / 60);
+    const secs = Math.floor(time % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const filteredSongs = PRESET_SONGS.filter(song => {
+    const matchesSearch = song.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          song.artist.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = activeCategory === "Semua" || song.category === activeCategory;
+    return matchesSearch && matchesCategory;
+  });
 
   const totalSteps = 5;
 
@@ -634,106 +696,227 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
       {/* ====== STEP 3: Pilih Lagu ====== */}
       {step === 3 && (
         <div className={styles.card}>
-          <div className={styles.cardIcon}>
-            <Music size={32} strokeWidth={1.5} />
-          </div>
-          <h2 className={styles.cardTitle}>Musik Latar</h2>
-          <p className={styles.cardDesc}>
-            Pilih lagu yang akan diputar otomatis saat kado dibuka.
-          </p>
-
-          <div className={styles.musicGrid}>
-            {PRESET_SONGS.map((song) => (
-              <div 
-                key={song.id} 
-                className={`${styles.musicCard} ${presetMusic === song.id ? styles.active : ''}`}
-                onClick={() => setPresetMusic(song.id)}
-              >
-                <div className={styles.musicCardIcon}>
-                  <PlayCircle size={24} color={presetMusic === song.id ? 'var(--brand-primary)' : 'var(--neutral-400)'} />
-                </div>
-                <div className={styles.musicCardInfo}>
-                  <h4>{song.title}</h4>
-                  <p>{song.artist}</p>
-                </div>
+          <div className={styles.musicTwoCol}>
+            {/* Left Column: List */}
+            <div className={styles.musicLeftCol}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                <Music size={24} color="var(--brand-primary)" strokeWidth={2} />
+                <h2 className={styles.cardTitle} style={{ margin: 0, border: 'none', padding: 0 }}>Pilih Musik Latar</h2>
               </div>
-            ))}
-          </div>
+              <p className={styles.cardDesc} style={{ marginBottom: '24px' }}>
+                Pilih lagu yang akan diputar otomatis saat kado dibuka.
+              </p>
 
-          {presetMusic === 3 && (
-            <>
+              <div className={styles.musicFilters}>
+                {["Semua", "Romantis", "Bahagia", "Akustik", "Instrumental"].map(cat => (
+                  <button 
+                    key={cat} 
+                    className={`${styles.filterPill} ${activeCategory === cat ? styles.active : ''}`}
+                    onClick={() => setActiveCategory(cat)}
+                  >
+                    {cat === "Semua" && <Music size={14} />}
+                    {cat === "Romantis" && <Heart size={14} />}
+                    {cat === "Bahagia" && <Smile size={14} />}
+                    {cat === "Akustik" && <Guitar size={14} />}
+                    {cat === "Instrumental" && <Music size={14} />}
+                    {cat}
+                  </button>
+                ))}
+              </div>
+
+              <div className={styles.musicSearchRow}>
+                <div className={styles.searchWrap}>
+                  <Search size={16} className={styles.searchIcon} />
+                  <input 
+                    type="text" 
+                    placeholder="Cari lagu, artis, atau mood..." 
+                    className={styles.searchInput}
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <button className={styles.sortBtn}>
+                  <SlidersHorizontal size={14} /> Terbaru <ChevronDown size={14} />
+                </button>
+              </div>
+
+              <div className={styles.songList}>
+                <div className={styles.songListHeader}>
+                  <div>LAGU</div>
+                  <div></div>
+                  <div>ARTIS</div>
+                  <div>DURASI</div>
+                  <div></div>
+                </div>
+
+                {filteredSongs.map(song => (
+                  <div 
+                    key={song.id} 
+                    className={`${styles.songRow} ${presetMusic === song.id ? styles.active : ''}`}
+                    onClick={() => {
+                      if (presetMusic === song.id) {
+                        setIsPlaying(!isPlaying);
+                      } else {
+                        setPresetMusic(song.id);
+                        setMusicFile(null); // Clear custom upload if picking preset
+                        setIsPlaying(true);
+                      }
+                    }}
+                  >
+                    <div className={styles.songCoverWrap}>
+                      <img src={song.coverUrl} alt={song.title} />
+                      <div className={styles.songPlayOverlay}>
+                        {presetMusic === song.id && isPlaying ? <Pause size={20} fill="white" /> : <Play size={20} fill="white" />}
+                      </div>
+                    </div>
+                    <div className={styles.songTitleCol}>
+                      <span className={styles.songTitle}>{song.title}</span>
+                      <span className={styles.songCategoryBadge}>{song.category}</span>
+                    </div>
+                    <div className={styles.songArtist}>{song.artist}</div>
+                    <div className={styles.songDuration}>{song.duration}</div>
+                    <div className={styles.songActions}>
+                      {presetMusic === song.id ? <CheckCircle2 size={18} color="var(--brand-primary)" fill="rgba(212, 165, 165, 0.2)" /> : <MoreHorizontal size={18} />}
+                    </div>
+                  </div>
+                ))}
+                
+                {filteredSongs.length === 0 && (
+                  <div style={{ textAlign: 'center', padding: '32px', color: 'var(--neutral-500)', fontSize: '0.9rem' }}>
+                    Lagu tidak ditemukan.
+                  </div>
+                )}
+
+                {filteredSongs.length > 0 && (
+                  <button className={styles.loadMoreBtn}>
+                    Muat lebih banyak <ChevronDown size={16} />
+                  </button>
+                )}
+              </div>
+              
+              <div className={styles.actions} style={{ marginTop: 'auto', paddingTop: '24px' }}>
+                <button className={styles.btnSecondary} onClick={() => setStep(2)}>
+                  <ArrowLeft size={16} /> Kembali
+                </button>
+                <button className={styles.btnPrimary} onClick={() => setStep(4)}>
+                  Lanjut <ArrowRight size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Right Column: Player */}
+            <div className={styles.musicRightCol}>
+              <div className={styles.playerHeader}>
+                <SlidersHorizontal size={16} color="var(--brand-primary)" />
+                Pratinjau Lagu
+              </div>
+
+              {presetMusic !== 3 || musicFile === null ? (
+                <>
+                  <div className={styles.playerCoverLarge}>
+                    <img src={PRESET_SONGS.find(s => s.id === presetMusic)?.coverUrl || PRESET_SONGS[0].coverUrl} alt="Cover" />
+                  </div>
+                  <div className={styles.playerInfo}>
+                    <div className={styles.playerTitleRow}>
+                      <h4 className={styles.playerTitle}>{PRESET_SONGS.find(s => s.id === presetMusic)?.title || "Custom"}</h4>
+                      {presetMusic !== 3 && <span className={styles.songCategoryBadge}>{PRESET_SONGS.find(s => s.id === presetMusic)?.category}</span>}
+                    </div>
+                    <p className={styles.playerArtist}>{PRESET_SONGS.find(s => s.id === presetMusic)?.artist}</p>
+                  </div>
+                  
+                  <div className={styles.playerProgressRow}>
+                    <span className={styles.playerTime}>{formatTime(currentTime)}</span>
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max={duration || 100} 
+                      value={currentTime} 
+                      onChange={handleSeek}
+                      className={styles.progressBar}
+                    />
+                    <span className={styles.playerTime} style={{ textAlign: 'right' }}>{formatTime(duration)}</span>
+                  </div>
+
+                  <div className={styles.playerControlsRow}>
+                    <button className={styles.playerBtn}><SkipBack size={20} fill="currentColor" /></button>
+                    <button 
+                      className={styles.playPauseBtn} 
+                      onClick={() => {
+                        if (presetMusic === 3) return; // Can't play custom upload easily without object URL
+                        setIsPlaying(!isPlaying);
+                      }}
+                    >
+                      {isPlaying ? <Pause size={24} fill="white" /> : <Play size={24} fill="white" style={{ marginLeft: 3 }} />}
+                    </button>
+                    <button className={styles.playerBtn}><SkipForward size={20} fill="currentColor" /></button>
+                  </div>
+
+                  <div className={styles.volumeRow}>
+                    <Volume2 size={16} color="var(--neutral-400)" />
+                    <input 
+                      type="range" 
+                      min="0" 
+                      max="1" 
+                      step="0.01" 
+                      value={volume} 
+                      onChange={(e) => setVolume(parseFloat(e.target.value))}
+                      className={styles.volumeSlider}
+                    />
+                  </div>
+                </>
+              ) : (
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: '24px 0' }}>
+                  <Music size={48} color="var(--brand-primary)" style={{ marginBottom: 16 }} />
+                  <h4 style={{ margin: '0 0 8px 0', color: 'var(--neutral-800)' }}>File Custom</h4>
+                  <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--neutral-500)', wordBreak: 'break-all' }}>{musicFile.name}</p>
+                  <button onClick={removeMusic} className={styles.btnSecondary} style={{ marginTop: '24px', padding: '6px 12px', fontSize: '0.8rem' }}>
+                    <X size={14} style={{ marginRight: '4px' }} /> Hapus File
+                  </button>
+                </div>
+              )}
+
+              <div className={styles.customUploadDivider}>
+                Atau unggah musik sendiri
+              </div>
+
               <div 
                 className={`${styles.uploadArea} ${isDraggingMusic ? styles.dragging : ''}`}
                 onClick={() => musicInputRef.current?.click()} 
                 onDragOver={(e) => { e.preventDefault(); setIsDraggingMusic(true); }}
                 onDragLeave={() => setIsDraggingMusic(false)}
                 onDrop={handleMusicDrop}
-                style={{ marginTop: '16px' }}
+                style={{ padding: '24px 12px', marginBottom: 0, borderColor: musicFile ? 'var(--success)' : '' }}
               >
-                <div className={styles.uploadIconWrapper}>
-                  <CloudUpload size={32} />
-                </div>
-                <h3 className={styles.uploadTitle}>
-                  {isDraggingMusic ? "Lepaskan musik di sini" : "Pilih atau Lepaskan musik di sini"}
-                </h3>
-                <p className={styles.uploadSubtitle}>
-                  Musik akan diputar otomatis saat kado dibuka
+                <CloudUpload size={28} color={musicFile ? 'var(--success)' : 'var(--brand-primary)'} style={{ marginBottom: 8 }} />
+                <p style={{ margin: 0, fontSize: '0.85rem', fontWeight: 600, color: musicFile ? 'var(--success)' : 'var(--brand-primary)' }}>
+                  {musicFile ? "File Terpilih" : "Upload file musik"}
                 </p>
-                <div className={styles.uploadPill}>
-                  MP3, WAV • Maks. 15 MB
-                </div>
-
-                {musicFile && (
-                  <div className={styles.filePreviewBadge} onClick={(e) => e.stopPropagation()}>
-                    <div className={styles.filePreviewImg} style={{ background: 'var(--brand-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                      <Music size={16} color="white" />
-                    </div>
-                    <div className={styles.filePreviewInfo}>
-                      <span className={styles.filePreviewName}>{musicFile.name}</span>
-                      <span className={styles.filePreviewMeta}>
-                        {(musicFile.size / (1024 * 1024)).toFixed(1)} MB
-                      </span>
-                    </div>
-                  </div>
-                )}
+                <p style={{ margin: '4px 0 0 0', fontSize: '0.7rem', color: 'var(--neutral-500)' }}>MP3, WAV • Maks. 15 MB</p>
                 
                 <input
                   ref={musicInputRef}
                   type="file"
                   accept="audio/mp3,audio/wav,audio/mpeg"
-                  onChange={handleMusicSelect}
+                  onChange={(e) => {
+                    handleMusicSelect(e);
+                    if (e.target.files && e.target.files.length > 0) {
+                      setPresetMusic(3);
+                      setIsPlaying(false);
+                    }
+                  }}
                   style={{ display: 'none' }}
                 />
               </div>
-              <div className={styles.securityNote}>
-                <ShieldCheck size={14} />
-                <span>File musik Anda aman dan hanya dapat didengar oleh penerima kartu</span>
-              </div>
-            </>
-          )}
-
-          {presetMusic === 3 && musicFile && (
-            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-              <button onClick={removeMusic} className={styles.btnSecondary} style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
-                <X size={14} style={{ marginRight: '4px' }} /> Hapus Musik
-              </button>
             </div>
-          )}
-
-          <div className={styles.actions}>
-            <button
-              className={styles.btnSecondary}
-              onClick={() => setStep(2)}
-            >
-              <ArrowLeft size={16} /> Kembali
-            </button>
-            <button
-              className={styles.btnPrimary}
-              onClick={() => setStep(4)}
-            >
-              Lanjut <ArrowRight size={16} />
-            </button>
           </div>
+          
+          <audio 
+            ref={audioRef} 
+            src={presetMusic !== 3 ? PRESET_SONGS.find(s => s.id === presetMusic)?.url : undefined} 
+            onTimeUpdate={handleAudioTimeUpdate}
+            onLoadedMetadata={handleAudioLoadedMetadata}
+            onEnded={() => setIsPlaying(false)}
+          />
         </div>
       )}
 
