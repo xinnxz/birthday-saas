@@ -87,13 +87,6 @@ export default function DashboardPage() {
     }
   };
 
-  const handleCreateNewClick = (e: React.MouseEvent) => {
-    if (userProfile?.plan === 'free' && cards.length >= 1) {
-      e.preventDefault();
-      setShowLimitModal(true);
-    }
-  };
-
   const activeCardsCount = cards.filter(c => c.isPublished).length;
   const totalViews = cards.reduce((acc, card) => acc + (card.views || 0), 0);
 
@@ -107,7 +100,7 @@ export default function DashboardPage() {
             Buat dan kelola kartu ulang tahun digital dengan mudah dan penuh makna.
           </p>
         </div>
-        <Link href="/dashboard/create" className={styles.heroBtn} onClick={handleCreateNewClick}>
+        <Link href="/dashboard/create" className={styles.heroBtn}>
           <Plus size={16} />
           Buat Kartu Baru
         </Link>
@@ -230,7 +223,7 @@ export default function DashboardPage() {
             <p className={styles.emptyDesc}>
               Buat kartu ulang tahun digital pertama Anda dan kirimkan ke orang tersayang!
             </p>
-            <Link href="/dashboard/create" className={styles.createBtn} onClick={handleCreateNewClick}>
+            <Link href="/dashboard/create" className={styles.createBtn}>
               <Sparkles size={18} />
               Buat Kartu Pertama
             </Link>

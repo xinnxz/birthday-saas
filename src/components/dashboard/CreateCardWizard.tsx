@@ -22,9 +22,36 @@ function SortableMessageItem({ id, val, onChange, onRemove, index }: any) {
       <input type="text" className={styles.messageInput} value={val} onChange={e => onChange(id, e.target.value)} placeholder="Tulis pesan..." />
       <div className={styles.messageCount}>{val.length}/80</div>
       <Trash2 size={16} color="#ef4444" style={{ cursor: 'pointer', marginLeft: '8px' }} onClick={() => onRemove(id)} />
+
+      {/* ===== LIMIT MODAL ===== */}
+      {showLimitModal && (
+        <div className={styles.modalOverlay} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }}>
+          <div className={styles.limitModal}>
+            <button className={styles.closeBtn} onClick={() => setShowLimitModal(false)}>
+              x
+            </button>
+            <div className={styles.modalIconWrap} style={{ background: 'transparent' }}>
+              <img src="/images/badge.png" alt="Premium Badge" width={80} height={80} style={{ objectFit: 'contain' }} />
+            </div>
+            <h2 className={styles.modalTitle}>Batas Akun Free Tercapai!</h2>
+            <p className={styles.modalDesc}>
+              Anda hanya bisa memiliki 1 kartu aktif. Untuk menyimpan kartu baru ini, silakan upgrade ke Premium!
+            </p>
+            <div className={styles.modalActions}>
+              <button className={styles.modalBtnOutline} onClick={() => setShowLimitModal(false)}>
+                Tutup
+              </button>
+              <button className={styles.modalBtnPrimary} onClick={() => router.push('/pricing')}>
+                <img src="/images/crown.png" alt="Crown" width={18} height={18} style={{ objectFit: 'contain' }} /> Upgrade ke Premium
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
 
 function SortableJourneyItem({ id, item, idx, onChange, onRemove }: any) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
@@ -69,9 +96,36 @@ function SortableJourneyItem({ id, item, idx, onChange, onRemove }: any) {
           {item.desc?.length || 0}/300
         </div>
       </div>
+
+      {/* ===== LIMIT MODAL ===== */}
+      {showLimitModal && (
+        <div className={styles.modalOverlay} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }}>
+          <div className={styles.limitModal}>
+            <button className={styles.closeBtn} onClick={() => setShowLimitModal(false)}>
+              x
+            </button>
+            <div className={styles.modalIconWrap} style={{ background: 'transparent' }}>
+              <img src="/images/badge.png" alt="Premium Badge" width={80} height={80} style={{ objectFit: 'contain' }} />
+            </div>
+            <h2 className={styles.modalTitle}>Batas Akun Free Tercapai!</h2>
+            <p className={styles.modalDesc}>
+              Anda hanya bisa memiliki 1 kartu aktif. Untuk menyimpan kartu baru ini, silakan upgrade ke Premium!
+            </p>
+            <div className={styles.modalActions}>
+              <button className={styles.modalBtnOutline} onClick={() => setShowLimitModal(false)}>
+                Tutup
+              </button>
+              <button className={styles.modalBtnPrimary} onClick={() => router.push('/pricing')}>
+                <img src="/images/crown.png" alt="Crown" width={18} height={18} style={{ objectFit: 'contain' }} /> Upgrade ke Premium
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
 
 import styles from './wizard.module.css';
 
@@ -211,6 +265,7 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
   const isEditMode = !!initialData;
   const [maxStepReached, setMaxStepReached] = useState(isEditMode ? 5 : 1);
   const [loading, setLoading] = useState(false);
+  const [showLimitModal, setShowLimitModal] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState("");
 
@@ -525,6 +580,17 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
     setUploadProgress(0);
 
     try {
+      // ==== CHECK LIMIT FOR FREE USERS ====
+      if (!cardId && userProfile?.plan === "free") {
+        const q = query(collection(db, "cards"), where("ownerId", "==", userId));
+        const snapshot = await getDocs(q);
+        if (snapshot.docs.length >= 1) {
+          setShowLimitModal(true);
+          setLoading(false);
+          return; // Stop execution, don't save
+        }
+      }
+
       if (birthDate.length !== 10) {
         throw new Error("Format tanggal lahir harus DD/MM/YYYY lengkap.");
       }
@@ -1648,6 +1714,33 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
         </div>
       )}
 
+
+      {/* ===== LIMIT MODAL ===== */}
+      {showLimitModal && (
+        <div className={styles.modalOverlay} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }}>
+          <div className={styles.limitModal}>
+            <button className={styles.closeBtn} onClick={() => setShowLimitModal(false)}>
+              x
+            </button>
+            <div className={styles.modalIconWrap} style={{ background: 'transparent' }}>
+              <img src="/images/badge.png" alt="Premium Badge" width={80} height={80} style={{ objectFit: 'contain' }} />
+            </div>
+            <h2 className={styles.modalTitle}>Batas Akun Free Tercapai!</h2>
+            <p className={styles.modalDesc}>
+              Anda hanya bisa memiliki 1 kartu aktif. Untuk menyimpan kartu baru ini, silakan upgrade ke Premium!
+            </p>
+            <div className={styles.modalActions}>
+              <button className={styles.modalBtnOutline} onClick={() => setShowLimitModal(false)}>
+                Tutup
+              </button>
+              <button className={styles.modalBtnPrimary} onClick={() => router.push('/pricing')}>
+                <img src="/images/crown.png" alt="Crown" width={18} height={18} style={{ objectFit: 'contain' }} /> Upgrade ke Premium
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
