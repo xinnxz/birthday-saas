@@ -8,53 +8,85 @@
   padding-bottom: 60px;
 }
 
-/* ===== Step Indicator ===== */
+/* ===== Progress Header ===== */
 .progressHeader {
   display: flex;
-  align-items: center;
   justify-content: center;
-  gap: 0;
-  margin-bottom: 40px;
+  align-items: flex-start;
+  margin-bottom: 32px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .stepIndicatorWrapper {
   display: flex;
   align-items: center;
+  flex: 1;
+  position: relative;
+}
+
+.stepIndicatorWrapper:last-child {
+  flex: 0;
+}
+
+.stepDotContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  z-index: 2;
 }
 
 .stepDot {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
+  background: white;
+  border: 2px solid var(--neutral-200);
   display: flex;
   align-items: center;
   justify-content: center;
+  font-weight: 600;
   font-size: 0.85rem;
-  font-weight: 500;
-  border: 1px solid var(--neutral-200);
   color: var(--neutral-400);
-  background: #fff;
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.3s;
 }
 
 .stepDot.active {
-  border-color: var(--brand-primary);
   background: var(--brand-primary);
-  color: #fff;
-  box-shadow: 0 4px 20px rgba(74, 37, 48, 0.3);
-  transform: scale(1.1);
+  border-color: var(--brand-primary);
+  color: white;
+  box-shadow: 0 4px 12px rgba(74, 37, 48, 0.2);
+}
+
+.stepLabel {
+  font-size: 0.75rem;
+  color: var(--neutral-400);
+  white-space: nowrap;
+  font-weight: 500;
+  position: absolute;
+  top: 40px;
+  text-align: center;
+}
+
+.stepDot.active + .stepLabel {
+  color: var(--brand-primary);
+  font-weight: 600;
 }
 
 .stepLine {
-  width: 80px;
-  height: 3px;
+  flex: 1;
+  height: 2px;
   background: var(--neutral-200);
-  border-radius: 10px;
-  transition: background 0.5s ease;
+  margin: 0 12px;
+  transform: translateY(-20px); /* Align with circles */
+  transition: all 0.3s;
 }
 
-.stepLine.done {
-  background: linear-gradient(90deg, var(--brand-primary), var(--brand-secondary));
+.stepLine.active {
+  background: var(--brand-primary);
 }
 
 /* ===== Main Card ===== */
@@ -114,20 +146,61 @@
   letter-spacing: 0.01em;
 }
 
+/* ===== Input With Icon ===== */
+.inputWithIconWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.inputIcon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--neutral-400);
+  pointer-events: none;
+}
+
+.inputWithIcon {
+  width: 100%;
+  padding: 14px 16px 14px 44px;
+  border: 1px solid var(--neutral-200);
+  border-radius: 12px;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+  background: white;
+}
+
+.inputWithIcon:focus {
+  outline: none;
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 4px rgba(74, 37, 48, 0.05);
+}
+
+.hint {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  color: var(--neutral-500);
+  margin-top: 8px;
+}
+
+/* Base Input */
 .input {
   width: 100%;
-  padding: 12px 16px;
-  border: 1px solid var(--neutral-300);
-  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  border: 1px solid var(--neutral-200);
+  border-radius: 12px;
   font-size: 0.95rem;
-  transition: var(--transition-fast);
+  transition: border-color 0.2s;
   background: white;
 }
 
 .input:focus {
   outline: none;
-  border-color: var(--brand-secondary);
-  box-shadow: 0 0 0 3px rgba(212, 165, 165, 0.2);
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 4px rgba(74, 37, 48, 0.05);
 }
 
 .textarea {
@@ -158,6 +231,229 @@
   color: var(--neutral-400);
   margin-top: 6px;
   padding-left: 2px;
+}
+
+/* ===== Step 1 Layout ===== */
+.step1TwoCol {
+  display: flex;
+  gap: 32px;
+  margin-top: 24px;
+}
+
+.step1LeftCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.step1RightCol {
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Interactive Cards */
+.templateCardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.themeCardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.selectableCard {
+  position: relative;
+  border: 1px solid var(--neutral-200);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  cursor: pointer;
+  background: white;
+  transition: all 0.2s ease;
+  min-height: 100px;
+}
+
+.selectableCard:hover {
+  border-color: var(--brand-secondary);
+  background: var(--neutral-50);
+}
+
+.selectableCard.active {
+  border-color: var(--brand-primary);
+  background: rgba(212, 165, 165, 0.05);
+  box-shadow: 0 4px 12px rgba(74, 37, 48, 0.05);
+}
+
+.selectableCard.horizontal {
+  flex-direction: row;
+  justify-content: flex-start;
+  text-align: left;
+  gap: 12px;
+  padding: 12px 16px;
+  min-height: auto;
+}
+
+.checkIconWrapper {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+}
+
+.cardTitleBig {
+  font-weight: 600;
+  color: var(--neutral-800);
+  font-size: 0.95rem;
+  margin-top: 8px;
+  margin-bottom: 2px;
+}
+
+.cardDescSmall {
+  font-size: 0.75rem;
+  color: var(--neutral-500);
+}
+
+/* Sidebar Preview */
+.previewSidebar {
+  background: white;
+  border-radius: 20px;
+  padding: 16px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+  position: sticky;
+  top: 24px;
+}
+
+.previewSidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.previewSidebarTitle {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--neutral-800);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.livePreviewBadge {
+  background: rgba(212, 165, 165, 0.15);
+  color: var(--brand-primary);
+  font-size: 0.7rem;
+  padding: 4px 8px;
+  border-radius: 99px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.livePreviewBadge::before {
+  content: '';
+  display: block;
+  width: 6px;
+  height: 6px;
+  background: var(--brand-primary);
+  border-radius: 50%;
+}
+
+.previewImageWrap {
+  width: 100%;
+  aspect-ratio: 9/16;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  background: var(--neutral-100);
+}
+
+.previewImageWrap img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.previewThemeInfo {
+  background: var(--neutral-50);
+  border-radius: 12px;
+  padding: 16px;
+}
+
+.previewThemeTitle {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--neutral-800);
+  margin-bottom: 4px;
+}
+
+.previewThemeDesc {
+  font-size: 0.8rem;
+  color: var(--neutral-500);
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+.previewColorSwatches {
+  display: flex;
+  gap: 8px;
+}
+
+.swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.inputGroupRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.securityBanner {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  background: rgba(212, 165, 165, 0.1);
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 24px;
+}
+
+.securityBannerIcon {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: rgba(212, 165, 165, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand-primary);
+}
+
+.securityBannerText h4 {
+  margin: 0 0 4px 0;
+  color: var(--neutral-800);
+  font-size: 0.95rem;
+}
+
+.securityBannerText p {
+  margin: 0;
+  color: var(--neutral-600);
+  font-size: 0.85rem;
 }
 
 /* ===== Music Two Column Layout ===== */
@@ -849,6 +1145,841 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* ===== Step 4: Desain & Pesan ===== */
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.sectionHeaderLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--neutral-800);
+  font-size: 0.95rem;
+}
+
+.sectionHeaderLeft svg {
+  color: var(--brand-primary);
+}
+
+.sectionHeaderInfo {
+  font-size: 0.75rem;
+  color: var(--neutral-400);
+}
+
+.addBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid var(--neutral-200);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--neutral-600);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.addBtn:hover {
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+}
+
+.messageListRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: white;
+  border: 1px solid var(--neutral-200);
+  border-radius: 12px;
+  margin-bottom: 8px;
+  transition: border-color 0.2s;
+}
+
+.messageListRow:focus-within {
+  border-color: var(--brand-primary);
+}
+
+.dragHandle {
+  color: var(--neutral-300);
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.messageInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.9rem;
+  color: var(--neutral-800);
+  outline: none;
+}
+
+.messageInput::placeholder {
+  color: var(--neutral-400);
+}
+
+.charCount {
+  font-size: 0.75rem;
+  color: var(--neutral-400);
+  min-width: 45px;
+  text-align: right;
+}
+
+.statusIcon {
+  color: var(--success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.editorWrap {
+  border: 1px solid var(--neutral-200);
+  border-radius: 12px;
+  background: white;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.editorWrap:focus-within {
+  border-color: var(--brand-primary);
+}
+
+.editorToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--neutral-100);
+  gap: 4px;
+}
+
+.toolbarBtn {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--neutral-600);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.toolbarBtn:hover {
+  background: var(--neutral-100);
+  color: var(--neutral-800);
+}
+
+.toolbarDivider {
+  width: 1px;
+  height: 16px;
+  background: var(--neutral-200);
+  margin: 0 4px;
+}
+
+.editorTextarea {
+  width: 100%;
+  border: none;
+  padding: 16px;
+  min-height: 200px;
+  resize: vertical;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--neutral-800);
+  outline: none;
+  background: transparent;
+}
+
+.editorFooter {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px 16px;
+  border-top: 1px dashed var(--neutral-100);
+}
+
+.wordCount {
+  font-size: 0.75rem;
+  color: var(--neutral-400);
+}
+
+.tipsBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(212, 165, 165, 0.1);
+  border-radius: 12px;
+  margin-top: 16px;
+}
+
+.tipsIcon {
+  color: var(--brand-primary);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.tipsText {
+  font-size: 0.85rem;
+  color: var(--neutral-600);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.tipsText strong {
+  color: var(--brand-primary);
+}
+
+/* Toggle Switch */
+.switchWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--neutral-500);
+  font-weight: 500;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--neutral-300);
+  transition: .3s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+.switch input:checked + .slider {
+  background-color: var(--brand-primary);
+}
+
+.switch input:checked + .slider:before {
+  transform: translateX(16px);
+}
+
+/* ===== Step 5: Timeline & Momen ===== */
+.timelineWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin-top: 24px;
+  position: relative;
+}
+
+.timelineRow {
+  display: flex;
+  gap: 16px;
+  position: relative;
+}
+
+.timelineConnector {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 32px;
+  position: relative;
+}
+
+.timelineDot {
+  width: 32px;
+  height: 32px;
+  background: var(--brand-primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  z-index: 2;
+  flex-shrink: 0;
+}
+
+.timelineLine {
+  width: 2px;
+  background: var(--neutral-200);
+  flex: 1;
+  margin-top: 8px;
+  margin-bottom: -16px; /* Extend into next gap */
+  z-index: 1;
+}
+
+.timelineRow:last-child .timelineLine {
+  display: none;
+}
+
+.momentCard {
+  flex: 1;
+  background: white;
+  border: 1px solid var(--neutral-200);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.2s;
+}
+
+.momentCard:focus-within {
+  border-color: var(--brand-primary);
+}
+
+.momentGrid {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  border-bottom: 1px dashed var(--neutral-200);
+}
+
+.momentCol {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.momentFieldLabel {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--neutral-600);
+}
+
+.momentInputWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--neutral-50);
+  border: 1px solid var(--neutral-200);
+  border-radius: 8px;
+  padding: 8px 12px;
+  transition: all 0.2s;
+}
+
+.momentInputWrap:focus-within {
+  border-color: var(--brand-primary);
+  background: white;
+}
+
+.momentInputWrap svg {
+  color: var(--neutral-400);
+  flex-shrink: 0;
+}
+
+.momentInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.9rem;
+  color: var(--neutral-800);
+  outline: none;
+  width: 100%;
+}
+
+.momentCharCount {
+  font-size: 0.7rem;
+  color: var(--neutral-400);
+  flex-shrink: 0;
+}
+
+.momentActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--neutral-400);
+  margin-left: 8px;
+}
+
+.momentActionBtn {
+  background: transparent;
+  border: none;
+  color: var(--neutral-400);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.momentActionBtn:hover {
+  background: var(--neutral-100);
+  color: var(--neutral-800);
+}
+
+.momentActionBtn.danger:hover {
+  color: #e53935;
+  background: rgba(229, 57, 53, 0.1);
+}
+
+.momentActionBtn.drag {
+  cursor: grab;
+}
+
+.momentDesc {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dashedBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px;
+  background: white;
+  border: 1px dashed var(--brand-primary);
+  color: var(--brand-primary);
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  margin-top: 16px;
+}
+
+.dashedBtn:hover {
+  background: rgba(212, 165, 165, 0.1);
+}
+
+.statsBox {
+  background: white;
+  border: 1px solid var(--neutral-200);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 16px;
+}
+
+.statsBoxHeader {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--neutral-800);
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--neutral-100);
+}
+
+.statsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.statsRow:last-child {
+  margin-bottom: 0;
+}
+
+.statsLabel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--neutral-600);
+}
+
+.statsValue {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--neutral-800);
+}
+
+/* ===== Step 2: Musik Latar ===== */
+.musicFilters {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.musicFilterBtn {
+  padding: 8px 16px;
+  border: 1px solid var(--neutral-200);
+  background: white;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--neutral-600);
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.musicFilterBtn.active {
+  background: var(--brand-primary);
+  color: white;
+  border-color: var(--brand-primary);
+}
+
+.musicSearchRow {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.musicSearchBox {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--neutral-50);
+  border: 1px solid var(--neutral-200);
+  border-radius: 12px;
+  padding: 10px 16px;
+}
+
+.musicSearchInput {
+  border: none;
+  background: transparent;
+  width: 100%;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.musicSortSelect {
+  padding: 10px 16px;
+  background: white;
+  border: 1px solid var(--neutral-200);
+  border-radius: 12px;
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+}
+
+.musicTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.musicTable th {
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--neutral-400);
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--neutral-100);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.musicTableRow {
+  cursor: pointer;
+  transition: all 0.2s;
+  border-radius: 12px;
+}
+
+.musicTableRow:hover {
+  background: var(--neutral-50);
+}
+
+.musicTableRow.active {
+  background: rgba(212, 165, 165, 0.1);
+}
+
+.musicTableCell {
+  padding: 12px 8px;
+  vertical-align: middle;
+}
+
+.musicTableRow td:first-child {
+  border-top-left-radius: 12px;
+  border-bottom-left-radius: 12px;
+}
+
+.musicTableRow td:last-child {
+  border-top-right-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.musicInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.musicCover {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+  background: var(--neutral-100);
+  flex-shrink: 0;
+}
+
+.musicCover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.musicCoverOverlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.musicTableRow:hover .musicCoverOverlay {
+  opacity: 1;
+}
+
+.musicTableRow.active .musicCoverOverlay {
+  opacity: 1;
+  background: rgba(212, 165, 165, 0.8);
+}
+
+.musicTitleWrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.musicTitle {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--neutral-800);
+}
+
+.musicTag {
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  background: rgba(212, 165, 165, 0.15);
+  color: var(--brand-primary);
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.musicArtist {
+  font-size: 0.85rem;
+  color: var(--neutral-500);
+}
+
+.musicDuration {
+  font-size: 0.85rem;
+  color: var(--neutral-500);
+}
+
+.playerSidebar {
+  background: var(--neutral-50);
+  border: 1px solid var(--neutral-200);
+  border-radius: 20px;
+  padding: 24px;
+  position: sticky;
+  top: 24px;
+  display: flex;
+  flex-direction: column;
+}
+
+.playerHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  color: var(--neutral-800);
+  margin-bottom: 24px;
+}
+
+.playerArtwork {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  background: var(--neutral-200);
+}
+
+.playerArtwork img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.playerMeta {
+  margin-bottom: 24px;
+}
+
+.playerTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--neutral-800);
+  margin-bottom: 4px;
+}
+
+.playerArtist {
+  font-size: 0.9rem;
+  color: var(--neutral-500);
+}
+
+.playerControls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.playerTimeline {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.playerTimeText {
+  font-size: 0.75rem;
+  color: var(--neutral-400);
+  font-variant-numeric: tabular-nums;
+  min-width: 32px;
+}
+
+.playerSlider {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  background: var(--neutral-200);
+  border-radius: 2px;
+  outline: none;
+}
+
+.playerSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--brand-primary);
+  cursor: pointer;
+}
+
+.playerButtons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+}
+
+.playerBtn {
+  background: transparent;
+  border: none;
+  color: var(--neutral-800);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.playerBtn:hover {
+  transform: scale(1.1);
+}
+
+.playerBtnPlay {
+  width: 56px;
+  height: 56px;
+  background: var(--neutral-800);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.playerBtnPlay:hover {
+  transform: scale(1.05);
+  background: var(--brand-primary);
+}
+
+.playerVolume {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  color: var(--neutral-400);
+}
+
+.playerVolumeSlider {
+  flex: 1;
+  height: 4px;
+  -webkit-appearance: none;
+  background: var(--neutral-200);
+  border-radius: 2px;
+  outline: none;
+}
+
+.playerVolumeSlider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--neutral-400);
+  cursor: pointer;
+}
+
+.uploadMusicBox {
+  margin-top: 32px;
+  border-top: 1px solid var(--neutral-200);
+  padding-top: 24px;
+}
+
+.uploadMusicLabel {
+  font-size: 0.85rem;
+  color: var(--neutral-500);
+  margin-bottom: 12px;
 }
 
 /* ===== Responsive ===== */
