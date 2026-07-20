@@ -1858,3 +1858,23 @@
     height: 36px;
   }
 }
+
+  .mobileAvatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--brand-accent);
+    object-fit: cover;
+  }
+  .mobileAvatarPlaceholder {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--brand-accent);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+  }

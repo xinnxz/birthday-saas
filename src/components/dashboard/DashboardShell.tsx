@@ -60,7 +60,15 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
                <Bell size={20} />
              </button>
             <button className={styles.mobileMenuBtn} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {mobileMenuOpen ? <X size={24} /> : (
+                userProfile?.photoURL ? (
+                  <img src={userProfile.photoURL} alt="Profil" className={styles.mobileAvatar} referrerPolicy="no-referrer" />
+                ) : (
+                  <div className={styles.mobileAvatarPlaceholder}>
+                    {userProfile?.displayName ? userProfile.displayName.charAt(0).toUpperCase() : "U"}
+                  </div>
+                )
+              )}
             </button>
         </div>
       </div>
