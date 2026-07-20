@@ -710,6 +710,25 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
         onEnded={() => setIsPlaying(false)}
       />
       {/* Progress Header */}
+      
+      {/* MOBILE PROGRESS HEADER (Only visible on max-width: 768px) */}
+      <div className={styles.mobileProgressHeader}>
+        <div className={styles.mobileProgressText}>
+          Langkah {step} dari {totalSteps}: {
+            step === 1 ? "Informasi Dasar" :
+            step === 2 ? "Pilih Musik" :
+            step === 3 ? "Kenangan" :
+            step === 4 ? "Pesan Spesial" : "Tema & Preview"
+          }
+        </div>
+        <div className={styles.mobileProgressBarBg}>
+          <div 
+            className={styles.mobileProgressBarFill} 
+            style={{ width: `${((step - 1) / (totalSteps - 1)) * 100}%` }} 
+          />
+        </div>
+      </div>
+
       <div className={styles.progressHeader}>
         <div className={styles.progressLineContainer}>
           <div className={styles.progressLineBg} />
