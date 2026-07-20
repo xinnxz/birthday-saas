@@ -60,10 +60,6 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
                <Bell size={20} />
              </button>
         </div>
-                )
-              )}
-            </button>
-        </div>
       </div>
 
       {/* ===== SIDEBAR (DESKTOP) & SLIDE MENU (MOBILE) ===== */}
