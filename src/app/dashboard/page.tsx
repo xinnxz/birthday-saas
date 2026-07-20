@@ -329,9 +329,9 @@ export default function DashboardPage() {
                 <button className={styles.modalBtnOutline} onClick={() => setShowLimitModal(false)}>
                   <Trash2 size={16} /> Hapus Kartu Lama
                 </button>
-                <button className={styles.modalBtnPrimary} onClick={() => { /* Handle upgrade action later */ }}>
-                <img src="/images/crown.png" alt="Crown" width={18} height={18} style={{ objectFit: 'contain' }} /> Upgrade ke Premium
-              </button>
+                <a href="/pricing" className={styles.modalBtnPrimary} style={{ display: 'inline-flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+                  <img src="/images/crown.png" alt="Crown" width={18} height={18} style={{ objectFit: 'contain' }} /> Upgrade ke Premium
+                </a>
               </div>
             </div>
           </div>

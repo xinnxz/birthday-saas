@@ -90,13 +90,15 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
           ))}
         </nav>
 
-        {/* Upgrade Box */}
-        <div className={styles.upgradeBox}>
-          <img src="/images/crown.png" alt="Crown" width={28} height={28} className={styles.upgradeCrown} style={{ objectFit: 'contain', display: 'block', margin: '0 auto 8px auto' }} />
-          <h4 className={styles.upgradeTitle}>Upgrade ke Premium</h4>
-          <p className={styles.upgradeDesc}>Nikmati fitur premium dan buat kartu tanpa batas.</p>
-          <button className={styles.upgradeBtn}>Upgrade Sekarang</button>
-        </div>
+        {/* Upgrade Box - hanya tampil untuk user FREE */}
+        {userProfile?.plan !== 'premium' && (
+          <div className={styles.upgradeBox}>
+            <img src="/images/crown.png" alt="Crown" width={28} height={28} className={styles.upgradeCrown} style={{ objectFit: 'contain', display: 'block', margin: '0 auto 8px auto' }} />
+            <h4 className={styles.upgradeTitle}>Upgrade ke Premium</h4>
+            <p className={styles.upgradeDesc}>Nikmati fitur premium dan buat kartu tanpa batas.</p>
+            <button className={styles.upgradeBtn}>Upgrade Sekarang</button>
+          </div>
+        )}
 
         {/* User info di bawah sidebar */}
         <div className={styles.userSection}>
@@ -146,14 +148,23 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
       <main className={styles.main}>
         {/* Header in Main Content (Desktop Only) */}
         <header className={styles.topHeader}>
-           <div className={styles.topHeaderActions}>
-              <div className={styles.planStatus}>
-                <span className={styles.planLabel}>
-                  <img src="/images/crown.png" alt="Crown" width={18} height={18} style={{ objectFit: 'contain' }} />
-                  Free Plan
-                </span>
-                <button className={styles.planUpgradeBtn}>Upgrade</button>
-              </div>
+         <div className={styles.topHeaderActions}>
+              {userProfile?.plan === 'premium' ? (
+                <div className={styles.planStatus}>
+                  <span className={styles.planLabel} style={{ color: '#b45309', background: '#fef9c3', border: '1px solid #fde68a', borderRadius: 20, padding: '4px 12px', fontWeight: 700, fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <img src="/images/crown.png" alt="Crown" width={16} height={16} style={{ objectFit: 'contain' }} />
+                    Premium
+                  </span>
+                </div>
+              ) : (
+                <div className={styles.planStatus}>
+                  <span className={styles.planLabel}>
+                    <img src="/images/crown.png" alt="Crown" width={18} height={18} style={{ objectFit: 'contain' }} />
+                    Free Plan
+                  </span>
+                  <button className={styles.planUpgradeBtn}>Upgrade</button>
+                </div>
+              )}
              <button className={styles.notifBtn}>
                <Bell size={18} />
              </button>
