@@ -1542,108 +1542,148 @@
 
 
 
+
+/* Hide Mobile Components on Desktop */
+.mobileTopNav, .mobileBottomNav {
+  display: none;
+}
+
 /* ===== MOBILE RESPONSIVENESS (CONSOLIDATED) ===== */
 @media (max-width: 768px) {
-  /* Turn Sidebar into Bottom Navigation */
-  .sidebar {
+  /* ===== NEW MOBILE STRUCTURE ===== */
+  .shell {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    background: #faf9f6;
+  }
+  
+  /* Mobile Top Navbar */
+  .mobileTopNav {
+    display: flex;
     position: fixed;
-    bottom: 0;
+    top: 0;
     left: 0;
     width: 100%;
-    height: 70px;
-    flex-direction: row;
-    border-right: none;
-    border-top: 1px solid var(--neutral-200);
-    padding: 0;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
     z-index: 100;
-    background: #ffffff;
     align-items: center;
-    justify-content: space-around;
-    box-shadow: 0 -4px 20px rgba(0,0,0,0.05);
+    justify-content: space-between;
+    padding: env(safe-area-inset-top, 0) 16px 0 16px; /* Safe area for Notch */
+    box-sizing: content-box;
+    border-bottom: 1px solid var(--neutral-200);
   }
-  .sidebarLogo, .sidebarFooter {
-    display: none !important; /* Hide logo and footer on bottom nav */
-  }
-  .navLinks {
-    flex-direction: row;
-    gap: 0;
-    width: 100%;
-    justify-content: space-around;
-    padding: 0 8px;
-  }
-  .navItem {
-    flex-direction: column;
-    padding: 8px 4px;
-    gap: 4px;
-    font-size: 0.65rem;
-    border-radius: 8px;
-    margin-bottom: 0;
-    flex: 1;
+  .mobileBrand {
+    display: flex;
     align-items: center;
-    text-align: center;
+    gap: 8px;
   }
-  .navItem svg {
-    margin-right: 0;
-    width: 20px;
-    height: 20px;
+  .mobileTopActions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
   }
-  .activeNav {
-    background: transparent;
-    color: var(--brand-primary);
-    font-weight: 600;
+  .mobileMenuBtn, .notifBtn {
+    background: none;
+    border: none;
+    color: var(--neutral-600);
+    padding: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
-  /* Main Layout */
+  /* Desktop Sidebar Hidden by Default on Mobile, behaves as slide-in menu if open */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 280px;
+    height: 100vh;
+    background: #fff;
+    z-index: 1000;
+    transition: left 0.3s ease;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.1);
+  }
+  .sidebarOpen {
+    left: 0;
+  }
+
+  /* Main Area */
   .main {
     margin-left: 0;
     padding: 0;
     width: 100vw;
+    height: 100vh;
     overflow-x: hidden;
+    overflow-y: auto;
   }
+  .topHeader {
+    display: none; /* Hide desktop top header */
+  }
+  
   .mainContentArea {
     padding: 0;
+    margin-top: calc(60px + env(safe-area-inset-top, 0)); /* Space for top nav */
+    margin-bottom: calc(70px + env(safe-area-inset-bottom, 0)); /* Space for bottom nav */
   }
-  .dashboardContainer {
-    width: 100vw;
-    overflow-x: hidden;
-    padding: 0 0 80px 0; /* padding bottom for bottom nav */
-  }
+
   .contentWrapper {
     padding: 16px;
     width: 100%;
     box-sizing: border-box;
   }
-  
-  /* Top Header */
-  .topHeader {
-    position: relative;
-    top: 0;
-    right: 0;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-end;
-    padding: 16px 20px;
-    background: #ffffff;
-    border-bottom: 1px solid var(--neutral-200);
+
+  /* Mobile Bottom Navbar */
+  .mobileBottomNav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
     width: 100%;
-    box-sizing: border-box;
-    z-index: 10;
+    height: 65px;
+    padding-bottom: env(safe-area-inset-bottom, 0); /* Safe area for iOS home indicator */
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid var(--neutral-200);
+    z-index: 99;
+    align-items: center;
+    justify-content: space-around;
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+    box-sizing: content-box;
   }
-  .topHeaderActions {
-    width: auto;
+  .mobileBottomNavItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--neutral-500);
+    text-decoration: none;
+    gap: 4px;
+    padding: 8px 0;
+    width: 25%;
   }
-  .planStatus {
-    display: none; /* Hide free plan upgrade button on mobile top header */
+  .mobileBottomNavItemActive {
+    color: var(--brand-primary);
+  }
+  .mobileBottomNavIcon {
+    display: flex;
+  }
+  .mobileBottomNavLabel {
+    font-size: 0.65rem;
+    font-weight: 500;
   }
 
-  /* Hero Section */
+  /* ===== CONTENT REFINEMENTS ===== */
   .heroSection {
     flex-direction: column;
     align-items: flex-start;
-    padding: 32px 24px;
+    padding: 24px 20px;
     min-height: auto;
-    border-radius: 0 0 24px 24px;
-    margin-bottom: 16px;
+    border-radius: 20px;
+    margin-bottom: 20px;
     box-sizing: border-box;
     width: 100%;
   }
@@ -1654,16 +1694,15 @@
   .heroContent {
     max-width: 100%;
     margin-bottom: 24px;
-    padding-top: 0;
-    padding-left: 0;
+    padding: 0;
   }
   .heroTitle {
-    font-size: 1.5rem;
-    line-height: 1.3;
-    word-break: break-word;
+    font-size: 1.4rem;
+    line-height: 1.35;
   }
   .heroSubtitle {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    margin-top: 8px;
   }
   .heroBtn {
     width: 100%;
@@ -1672,9 +1711,19 @@
 
   /* Grids */
   .statsGrid {
-    grid-template-columns: 1fr;
-    gap: 16px;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns for better space usage */
+    gap: 12px;
   }
+  .statCard {
+    padding: 16px;
+  }
+  .statHeader h3 {
+    font-size: 0.8rem;
+  }
+  .statValue {
+    font-size: 1.5rem;
+  }
+  
   .cardsGrid {
     grid-template-columns: 1fr;
   }
@@ -1682,21 +1731,27 @@
     grid-template-columns: repeat(2, 1fr);
   }
   
-  /* Cards */
+  /* Modern Card (e.g. Fiara) */
   .modernCardItem {
     flex-direction: column;
     align-items: center;
     text-align: center;
+    padding: 20px;
   }
   .cardActions {
     width: 100%;
     justify-content: center;
     margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .btnOutline, .btnDanger {
+    flex: 1; /* Stretch buttons */
+    justify-content: center;
   }
   
   /* Forms */
   .formCard {
-    padding: 24px 16px;
+    padding: 20px 16px;
   }
   .formActions {
     flex-direction: column-reverse;
@@ -1708,11 +1763,15 @@
     justify-content: center;
   }
   
-  /* Misc */
-  .pageHeader {
+  /* Search / Filters */
+  .filtersRow {
     flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-    padding: 0 16px;
+    gap: 12px;
+  }
+  .searchInput {
+    width: 100%;
+  }
+  .sortSelect {
+    width: 100%;
   }
 }

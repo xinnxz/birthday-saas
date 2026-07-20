@@ -2,23 +2,13 @@
 
 /**
  * DashboardShell — Komponen Pembungkus Dashboard
- * 
- * Ini adalah "kerangka" dashboard yang berisi:
- * 1. Sidebar navigasi di sebelah kiri
- * 2. Header di atas dengan info user
- * 3. Area konten utama di tengah (children)
- * 
- * Komponen ini juga berfungsi sebagai "Auth Guard":
- * - Jika user BELUM login → redirect otomatis ke /login
- * - Jika sedang loading → tampilkan skeleton
- * - Jika sudah login → tampilkan dashboard
  */
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter, usePathname } from "next/navigation";
-import { useEffect, ReactNode } from "react";
+import { useEffect, ReactNode, useState } from "react";
 import Link from "next/link";
-import { LayoutDashboard, Wand2, Image as ImageIcon, Settings, LogOut, Gift, Crown, Bell, LayoutTemplate } from "lucide-react";
+import { LayoutDashboard, Wand2, Image as ImageIcon, Settings, LogOut, Gift, Crown, Bell, LayoutTemplate, Menu, X } from "lucide-react";
 import styles from "./dashboard.module.css";
 
 /** Item navigasi sidebar */
@@ -34,15 +24,15 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
   const { user, userProfile, loading, logout } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Auth Guard: redirect ke login jika belum login
+  // Auth Guard
   useEffect(() => {
     if (!loading && !user) {
       router.push("/login");
     }
   }, [user, loading, router]);
 
-  // Tampilkan loading skeleton saat mengecek sesi
   if (loading) {
     return (
       <div className={styles.loadingScreen}>
@@ -52,14 +42,32 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
     );
   }
 
-  // Jangan render dashboard jika belum login
   if (!user) return null;
 
   return (
     <div className={styles.shell}>
-      {/* ===== SIDEBAR ===== */}
-      <aside className={styles.sidebar}>
-        {/* Logo / Brand */}
+      {/* ===== MOBILE TOP NAV ===== */}
+      <div className={styles.mobileTopNav}>
+        <div className={styles.mobileBrand}>
+          <img src="/images/logo.png" alt="BirthdayGift Logo" width={28} height={28} style={{ objectFit: 'contain' }} />
+          <span className={styles.brandText}>
+            <span style={{ color: '#4a2530' }}>Birthday</span>
+            <span style={{ color: '#e83e8c' }}>Gift</span>
+          </span>
+        </div>
+        <div className={styles.mobileTopActions}>
+            <button className={styles.notifBtn}>
+               <Bell size={20} />
+             </button>
+            <button className={styles.mobileMenuBtn} onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+            {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+        </div>
+      </div>
+
+      {/* ===== SIDEBAR (DESKTOP) & SLIDE MENU (MOBILE) ===== */}
+      <aside className={`${styles.sidebar} ${mobileMenuOpen ? styles.sidebarOpen : ""}`}>
+        {/* Logo / Brand (Desktop Only) */}
         <div className={styles.brand}>
           <img src="/images/logo.png" alt="BirthdayGift Logo" width={32} height={32} style={{ objectFit: 'contain' }} />
           <span className={styles.brandText}>
@@ -74,6 +82,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
             <Link
               key={item.href}
               href={item.href}
+              onClick={() => setMobileMenuOpen(false)}
               className={`${styles.navItem} ${
                 pathname === item.href ? styles.navItemActive : ""
               }`}
@@ -120,11 +129,26 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
+      {/* ===== MOBILE BOTTOM NAV ===== */}
+      <nav className={styles.mobileBottomNav}>
+        {NAV_ITEMS.slice(0, 4).map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={`${styles.mobileBottomNavItem} ${
+              pathname === item.href ? styles.mobileBottomNavItemActive : ""
+            }`}
+          >
+            <span className={styles.mobileBottomNavIcon}>{item.icon}</span>
+            <span className={styles.mobileBottomNavLabel}>{item.label.split(' ')[0]}</span>
+          </Link>
+        ))}
+      </nav>
+
       {/* ===== MAIN CONTENT ===== */}
       <main className={styles.main}>
-        {/* Header in Main Content */}
+        {/* Header in Main Content (Desktop Only) */}
         <header className={styles.topHeader}>
-           {/* Top Header Buttons on Right */}
            <div className={styles.topHeaderActions}>
               <div className={styles.planStatus}>
                 <span className={styles.planLabel}>
