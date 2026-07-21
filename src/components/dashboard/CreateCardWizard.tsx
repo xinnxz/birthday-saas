@@ -615,8 +615,8 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
         }
       }
 
-      let customMusicUrl = initialData?.music?.url || "";
-      if (musicFile && presetMusic === 3) {
+      let customMusicUrl = "";
+      if (musicFile) {
         setUploadProgress(90);
         customMusicUrl = await uploadToCloudinary(musicFile, "auto");
       }
@@ -632,6 +632,31 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
         };
       });
 
+      // Determine final music data
+      let finalMusicData = initialData?.music || null;
+      if (customMusicUrl) {
+        finalMusicData = {
+          title: musicFile?.name || "Custom Song",
+          artist: senderName.trim() || "Someone Special",
+          url: customMusicUrl
+        };
+      } else if (presetMusic !== 0) {
+        const selectedPreset = PRESET_SONGS.find(s => s.id === presetMusic);
+        if (selectedPreset) {
+          finalMusicData = {
+            title: selectedPreset.title,
+            artist: selectedPreset.artist,
+            url: selectedPreset.url
+          };
+        }
+      } else if (!finalMusicData) {
+        finalMusicData = {
+          title: PRESET_SONGS[0].title,
+          artist: PRESET_SONGS[0].artist,
+          url: PRESET_SONGS[0].url
+        };
+      }
+
       const cardData = {
         recipientName,
         senderName: senderName.trim() || "Someone Special",
@@ -641,19 +666,7 @@ export default function CreateCardWizard({ userId, cardId, initialData }: Create
         bouquet: bouquetMessages,
         journey: mappedJourney,
         photos: photoUrls,
-        music: customMusicUrl ? {
-          title: "Custom Song",
-          artist: senderName.trim() || "Someone Special",
-          url: customMusicUrl
-        } : (presetMusic !== 3 ? {
-          title: PRESET_SONGS[presetMusic].title,
-          artist: PRESET_SONGS[presetMusic].artist,
-          url: PRESET_SONGS[presetMusic].url
-        } : { 
-          title: "Beautiful in White", 
-          artist: "Westlife", 
-          url: "" 
-        }),
+        music: finalMusicData,
         theme: theme,
         updatedAt: serverTimestamp(),
       };
