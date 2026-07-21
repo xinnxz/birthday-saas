@@ -2,9 +2,10 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/contexts/AuthContext';
 import { uploadToCloudinary } from '@/lib/cloudinary/upload';
 import { db } from '@/lib/firebase';
-import { collection, addDoc, serverTimestamp, doc, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, updateDoc, query, where, getDocs } from 'firebase/firestore';
 import { AlertCircle, Cake, Camera, UploadCloud, CloudUpload, ShieldCheck, X, Sparkles, ArrowRight, ArrowLeft, Music, PlayCircle, MessageSquareHeart, Map, ImagePlus, Play, Pause, SkipBack, SkipForward, Volume2, Search, MoreHorizontal, Check, User, Calendar, Smile, Guitar, SlidersHorizontal, ChevronDown, CheckCircle2, Heart, Settings2, Folder, Layers, Image as ImageIcon, Video, FileJson, FileText, Filter, Plus, Info, Eye, Lightbulb, GripVertical, Mail, Bold, Italic, Underline, List, Edit2, Trash2, Tag, MessageSquare } from 'lucide-react';
 import { HiOutlineHeart, HiHeart, HiOutlineUsers, HiUsers, HiOutlineUser, HiUser, HiOutlineGift, HiGift } from 'react-icons/hi2';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
@@ -23,31 +24,7 @@ function SortableMessageItem({ id, val, onChange, onRemove, index }: any) {
       <div className={styles.messageCount}>{val.length}/80</div>
       <Trash2 size={16} color="#ef4444" style={{ cursor: 'pointer', marginLeft: '8px' }} onClick={() => onRemove(id)} />
 
-      {/* ===== LIMIT MODAL ===== */}
-      {showLimitModal && (
-        <div className={styles.modalOverlay} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }}>
-          <div className={styles.limitModal}>
-            <button className={styles.closeBtn} onClick={() => setShowLimitModal(false)}>
-              x
-            </button>
-            <div className={styles.modalIconWrap} style={{ background: 'transparent' }}>
-              <img src="/images/badge.png" alt="Premium Badge" width={80} height={80} style={{ objectFit: 'contain' }} />
-            </div>
-            <h2 className={styles.modalTitle}>Batas Akun Free Tercapai!</h2>
-            <p className={styles.modalDesc}>
-              Anda hanya bisa memiliki 1 kartu aktif. Untuk menyimpan kartu baru ini, silakan upgrade ke Premium!
-            </p>
-            <div className={styles.modalActions}>
-              <button className={styles.modalBtnOutline} onClick={() => setShowLimitModal(false)}>
-                Tutup
-              </button>
-              <button className={styles.modalBtnPrimary} onClick={() => router.push('/pricing')}>
-                <img src="/images/crown.png" alt="Crown" width={18} height={18} style={{ objectFit: 'contain' }} /> Upgrade ke Premium
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }
@@ -97,31 +74,7 @@ function SortableJourneyItem({ id, item, idx, onChange, onRemove }: any) {
         </div>
       </div>
 
-      {/* ===== LIMIT MODAL ===== */}
-      {showLimitModal && (
-        <div className={styles.modalOverlay} style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999 }}>
-          <div className={styles.limitModal}>
-            <button className={styles.closeBtn} onClick={() => setShowLimitModal(false)}>
-              x
-            </button>
-            <div className={styles.modalIconWrap} style={{ background: 'transparent' }}>
-              <img src="/images/badge.png" alt="Premium Badge" width={80} height={80} style={{ objectFit: 'contain' }} />
-            </div>
-            <h2 className={styles.modalTitle}>Batas Akun Free Tercapai!</h2>
-            <p className={styles.modalDesc}>
-              Anda hanya bisa memiliki 1 kartu aktif. Untuk menyimpan kartu baru ini, silakan upgrade ke Premium!
-            </p>
-            <div className={styles.modalActions}>
-              <button className={styles.modalBtnOutline} onClick={() => setShowLimitModal(false)}>
-                Tutup
-              </button>
-              <button className={styles.modalBtnPrimary} onClick={() => router.push('/pricing')}>
-                <img src="/images/crown.png" alt="Crown" width={18} height={18} style={{ objectFit: 'contain' }} /> Upgrade ke Premium
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
     </div>
   );
 }
@@ -261,6 +214,7 @@ interface CreateCardWizardProps {
 
 export default function CreateCardWizard({ userId, cardId, initialData }: CreateCardWizardProps) {
   const router = useRouter();
+  const { userProfile } = useAuth();
   const [step, setStep] = useState(1);
   const isEditMode = !!initialData;
   const [maxStepReached, setMaxStepReached] = useState(isEditMode ? 5 : 1);
